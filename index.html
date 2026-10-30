@@ -556,18 +556,49 @@
         <pre style="background:#fff; padding:8px; border:1px solid #cbd5e1; overflow-x:auto; margin:6px 0; font-size:10.5px;">function doPost(e) {
   try {
     var data = JSON.parse(e.postData.contents);
+    
+    // 1. Google Drive'da "Teknik Servis Formlari (AYDN)" klasörünü bul veya oluştur
     var folderName = "Teknik Servis Formlari (AYDN)";
     var folders = DriveApp.getFoldersByName(folderName);
     var folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(folderName);
     
+    // 2. PDF Dosyasını oluştur ve klasöre kaydet (Varsayılan olarak tamamen GİZLİ kalır)
     var bytes = Utilities.base64Decode(data.pdfBase64);
     var blob = Utilities.newBlob(bytes, 'application/pdf', data.fileName);
     var file = folder.createFile(blob);
-    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
+    // 3. Müşteri Maili Girilmişse PDF'i Otomatik E-Posta Olarak Gönder
+    var emailSent = false;
+    var targetEmail = (data.musteriEmail || data.userEmail || "").trim();
+    if (targetEmail && targetEmail.indexOf("@") !== -1) {
+      try {
+        var subject = "Teknik Servis ve Devreye Alma Formu - " + (data.musteriAdi || "") + " (" + (data.kayitNo || data.formNo || "") + ")";
+        var bodyText = "Sayın Yetkili,\n\n" +
+          "Aydın Sarıkaya Mühendislik Limited Şirketi tarafından gerçekleştirilen teknik servis ve devreye alma işlemlerine ait onaylı servis formu ekte bilginize sunulmuştur.\n\n" +
+          "Proje / Müşteri: " + (data.musteriAdi || "-") + "\n" +
+          "Form No: " + (data.formNo || "-") + " | Kayıt No: " + (data.kayitNo || "-") + "\n" +
+          "Tarih: " + (data.tarih || "-") + "\n" +
+          "Sistem: " + (data.cihazGrubu || "-") + "\n" +
+          "Durum: " + (data.servisSonDurum || "-") + "\n\n" +
+          "İyi çalışmalar dileriz.\n\n" +
+          "AYDIN SARIKAYA MÜHENDİSLİK LTD. ŞTİ.\n" +
+          "Koç Kuleleri 2A / 13 Çankaya / ANKARA\n" +
+          "Tel: 0 532 654 67 14 | E-posta: info@aydn.com.tr";
+
+        GmailApp.sendEmail(targetEmail, subject, bodyText, {
+          name: "Aydın Sarıkaya Mühendislik",
+          attachments: [blob]
+        });
+        emailSent = true;
+      } catch (mailErr) {
+        Logger.log("Mail gönderim hatası: " + mailErr.toString());
+      }
+    }
     
     return ContentService.createTextOutput(JSON.stringify({
       status: "SUCCESS",
-      fileUrl: file.getUrl()
+      fileUrl: file.getUrl(),
+      emailSent: emailSent
     })).setMimeType(ContentService.MimeType.JSON);
   } catch(err) {
     return ContentService.createTextOutput(JSON.stringify({
@@ -720,8 +751,16 @@
       <div>
         <label>Adres / Lokasyon:</label>
         <input type="text" id="musteriAdres" value="Mahkeme Mah. 24006 Sokak No:1 Balıkesir/Burhaniye">
-        <label>Telefon / İletişim:</label>
-        <input type="text" id="musteriTel" placeholder="05XX XXX XX XX">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+          <div>
+            <label>Telefon / İletişim:</label>
+            <input type="text" id="musteriTel" placeholder="05XX XXX XX XX">
+          </div>
+          <div>
+            <label>Müşteri E-Posta (Doldurulursa PDF İletilir):</label>
+            <input type="email" id="musteriEmail" placeholder="musteri@mail.com">
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1162,19 +1201,26 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
     }
 
     // 1. Müşteri / Proje Bilgileri
-    drawBox('MÜŞTERİ / PROJE VE LOKASYON BİLGİLERİ', 120);
+    drawBox('MÜŞTERİ / PROJE VE LOKASYON BİLGİLERİ', 135);
     ctx.font = 'bold 14px -apple-system, sans-serif';
     ctx.fillStyle = '#374151';
-    ctx.fillText('Proje / Müşteri: ', 75, curY + 56);
-    ctx.fillText('Yetkili / Birim: ', 75, curY + 82);
-    ctx.fillText('Adres / Lokasyon: ', 75, curY + 108);
+    ctx.fillText('Proje / Müşteri: ', 75, curY + 54);
+    ctx.fillText('Yetkili / Birim: ', 75, curY + 78);
+    ctx.fillText('Adres / Lokasyon: ', 75, curY + 102);
+    ctx.fillText('İletişim / E-Posta: ', 75, curY + 126);
 
     ctx.font = '14px -apple-system, sans-serif';
     ctx.fillStyle = '#000000';
-    ctx.fillText(document.getElementById('musteriAdi').value, 205, curY + 56);
-    ctx.fillText(document.getElementById('ilgiliBirim').value, 205, curY + 82);
-    ctx.fillText(document.getElementById('musteriAdres').value, 205, curY + 108);
-    curY += 135;
+    ctx.fillText(document.getElementById('musteriAdi').value, 215, curY + 54);
+    ctx.fillText(document.getElementById('ilgiliBirim').value, 215, curY + 78);
+    ctx.fillText(document.getElementById('musteriAdres').value, 215, curY + 102);
+
+    const mTel = document.getElementById('musteriTel').value.trim();
+    const mMail = document.getElementById('musteriEmail').value.trim();
+    let contactStr = mTel || '-';
+    if (mMail) contactStr += (mTel ? '  |  ' : '') + 'E-Posta: ' + mMail;
+    ctx.fillText(contactStr, 215, curY + 126);
+    curY += 150;
 
     // 2. SİSTEM DETAYLARI (SADECE SİSTEM SEÇİMİ VE TARİH / SAAT - IP VE YAZILIM SİLİNDİ)
     drawBox('SİSTEM DETAYLARI', 75);
@@ -1386,6 +1432,8 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
         kayitNo: metaData.kayitNo,
         tarih: metaData.tarih,
         musteriAdi: metaData.musteriAdi,
+        musteriEmail: metaData.musteriEmail,
+        userEmail: metaData.musteriEmail,
         cihazGrubu: metaData.cihazGrubu,
         servisSonDurum: metaData.servisSonDurum,
         islemler: metaData.islemler,
@@ -1442,6 +1490,7 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
       ilgiliBirim: document.getElementById('ilgiliBirim').value,
       musteriAdres: document.getElementById('musteriAdres').value,
       musteriTel: document.getElementById('musteriTel').value,
+      musteriEmail: document.getElementById('musteriEmail').value.trim(),
       cihazGrubu: document.getElementById('cihazGrubuSelect').value,
       islemler: document.getElementById('islemler').value,
       materials: rows,
@@ -1484,7 +1533,11 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
       const uploaded = await uploadPDFToGoogleDrive(pdfBlob, fileName, current);
 
       if (uploaded) {
-        showToast('✓ ' + fileName + ' Google Drive\'a başarıyla yüklendi!');
+        let msg = '✓ ' + fileName + ' Google Drive\'a başarıyla yüklendi!';
+        if (current.musteriEmail && current.musteriEmail.indexOf('@') !== -1) {
+          msg += '<br>✉️ PDF (' + current.musteriEmail + ') adresine iletildi.';
+        }
+        showToast(msg, 4000);
       } else {
         showToast('✓ Form arşive kaydedildi. (Drive kapalı veya bağlantı yok)');
       }
@@ -1597,6 +1650,7 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
     document.getElementById('ilgiliBirim').value = r.ilgiliBirim || '';
     document.getElementById('musteriAdres').value = r.musteriAdres || '';
     document.getElementById('musteriTel').value = r.musteriTel || '';
+    document.getElementById('musteriEmail').value = r.musteriEmail || '';
 
     // Sistem seçeneğini yenile ve seç
     refreshSystemSelect(r.cihazGrubu);
@@ -1677,10 +1731,10 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
       return;
     }
     let csv = '\uFEFF';
-    csv += 'Kayıt Tarihi;Form No;No;Tarih;Müşteri / Proje;Birim;Adres;Sistem Detayı;Durum;Teslim Eden;Teslim Alan\n';
+    csv += 'Kayıt Tarihi;Form No;No;Tarih;Müşteri / Proje;Birim;Adres;Telefon;E-Posta;Sistem Detayı;Durum;Teslim Eden;Teslim Alan\n';
     recs.forEach(r => {
       const clean = (t) => (t || '').replace(/;/g, ' ').replace(/\n/g, ' ');
-      csv += `"${clean(r.savedAt)}";"${clean(r.formNo)}";"${clean(r.kayitNo)}";"${clean(r.tarih)}";"${clean(r.musteriAdi)}";"${clean(r.ilgiliBirim)}";"${clean(r.musteriAdres)}";"${clean(r.cihazGrubu)}";"${clean(r.servisSonDurum)}";"${clean(r.teslimEden)}";"${clean(r.teslimAlan)}"\n`;
+      csv += `"${clean(r.savedAt)}";"${clean(r.formNo)}";"${clean(r.kayitNo)}";"${clean(r.tarih)}";"${clean(r.musteriAdi)}";"${clean(r.ilgiliBirim)}";"${clean(r.musteriAdres)}";"${clean(r.musteriTel)}";"${clean(r.musteriEmail)}";"${clean(r.cihazGrubu)}";"${clean(r.servisSonDurum)}";"${clean(r.teslimEden)}";"${clean(r.teslimAlan)}"\n`;
     });
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
