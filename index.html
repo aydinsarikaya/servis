@@ -819,7 +819,7 @@ function doPost(e) {
         <input type="text" id="formNo" class="meta-input meta-input-readonly" value="2025_TSVDAF_1" readonly>
 
         <span class="meta-label">No:</span>
-        <input type="text" id="kayitNo" class="meta-input" value="300">
+        <input type="text" id="kayitNo" class="meta-input" placeholder="300">
 
         <span class="meta-label">Tarih:</span>
         <input type="date" id="tarih" class="meta-input">
@@ -1092,13 +1092,13 @@ function doPost(e) {
     const n = parseInt(numStr, 10);
     if (!isNaN(n)) {
       const cur = parseInt(localStorage.getItem(STORAGE_KEY_LAST_NO), 10) || 299;
-      if (n > cur) {
+      if (n >= cur) {
         localStorage.setItem(STORAGE_KEY_LAST_NO, n.toString());
       }
     }
   }
 
-  function initFormNumbers() {
+  function initFormNumbers(force = false) {
     const fIn = document.getElementById('formNo');
     if (fIn) {
       fIn.value = FORM_NO_FIXED;
@@ -1106,7 +1106,7 @@ function doPost(e) {
     }
     const kIn = document.getElementById('kayitNo');
     if (kIn) {
-      if (!kIn.value || kIn.value === 'Örn: 01' || parseInt(kIn.value, 10) < 300) {
+      if (force || !kIn.value || kIn.value === 'Örn: 01' || parseInt(kIn.value, 10) < 300) {
         kIn.value = getNextRecordNumber();
       }
     }
@@ -1857,11 +1857,17 @@ function doPost(e) {
       return;
     }
     const recs = getArchiveRecords();
-    const existIdx = recs.findIndex(r => r.formNo === current.formNo);
+    const curKayitNo = (current.kayitNo || '').toString().trim();
+    const existIdx = recs.findIndex(r => {
+      const rKayitNo = (r.kayitNo || r.no || '').toString().trim();
+      return curKayitNo && rKayitNo === curKayitNo;
+    });
     if (existIdx >= 0) {
-      if (confirm(current.formNo + ' numaralı form arşivde mevcut. Üzerine kaydetmek istiyor musunuz?')) {
+      if (confirm('Kayıt No ' + curKayitNo + ' arşivde mevcut. Üzerine kaydetmek istiyor musunuz?')) {
         recs[existIdx] = current;
         saveArchiveRecords(recs);
+      } else {
+        return;
       }
     } else {
       recs.unshift(current);
@@ -2104,7 +2110,11 @@ function doPost(e) {
   document.getElementById('btnShareWA').addEventListener('click', async function() {
     const current = getCurrentFormData();
     const recs = getArchiveRecords();
-    const existIdx = recs.findIndex(r => r.formNo === current.formNo);
+    const curKayitNo = (current.kayitNo || '').toString().trim();
+    const existIdx = recs.findIndex(r => {
+      const rKayitNo = (r.kayitNo || r.no || '').toString().trim();
+      return curKayitNo && rKayitNo === curKayitNo;
+    });
     if (existIdx >= 0) recs[existIdx] = current; else recs.unshift(current);
     saveArchiveRecords(recs);
 
@@ -2152,7 +2162,11 @@ function doPost(e) {
   document.getElementById('btnExportPDF').addEventListener('click', async function() {
     const current = getCurrentFormData();
     const recs = getArchiveRecords();
-    const existIdx = recs.findIndex(r => r.formNo === current.formNo);
+    const curKayitNo = (current.kayitNo || '').toString().trim();
+    const existIdx = recs.findIndex(r => {
+      const rKayitNo = (r.kayitNo || r.no || '').toString().trim();
+      return curKayitNo && rKayitNo === curKayitNo;
+    });
     if (existIdx >= 0) recs[existIdx] = current; else recs.unshift(current);
     saveArchiveRecords(recs);
 
@@ -2232,14 +2246,14 @@ function doPost(e) {
       cb.checked = (cb.value === "Devreye Alma" || cb.value === "Test & Teslim");
     });
 
-    initFormNumbers();
-    showToast("✓ Tüm form alanları temizlendi.");
+    initFormNumbers(true);
+    showToast("✓ Form temizlendi. Yeni Kayıt No: " + document.getElementById('kayitNo').value);
   }
 
   document.getElementById('btnReset').addEventListener('click', resetAllFormFields);
 
   window.addEventListener('DOMContentLoaded', () => {
-    initFormNumbers();
+    initFormNumbers(true);
 
     fetchUsersFromCloud();
     refreshSystemSelect();
