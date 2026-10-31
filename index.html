@@ -1380,6 +1380,29 @@ function doPost(e) {
     return canvas.toDataURL('image/jpeg', 0.90);
   }
 
+  // ORTAK: FOTOĞRAFLI TEK / ÇİFT SAYFALI RESMİ PDF ÜRETİCİ
+  async function generateCompletePdfBlob() {
+    const page1Url = await generateFormCanvas();
+    const photoImgs = Array.from(document.querySelectorAll('#photoGallery img')).map(img => img.src);
+
+    const pageUrls = [page1Url];
+    if (photoImgs.length > 0) {
+      const page2Url = await generatePhotoPageCanvas(photoImgs);
+      pageUrls.push(page2Url);
+    }
+
+    const pageBlobs = pageUrls.map(url => {
+      const b64 = url.split(',')[1];
+      const bin = atob(b64);
+      const arr = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+      return arr;
+    });
+
+    return buildMultiPageA4PDF(pageBlobs);
+  }
+
+
   // 7. FORM KANVAS ÇİZİCİ (OTOMATİK KELİME KAYDIRMA & SIĞDIRMA GARANTİSİ)
   async function generateFormCanvas() {
     const canvas = document.getElementById('exportCanvas');
@@ -1768,18 +1791,11 @@ function doPost(e) {
     }
 
     const fileName = generateSmartFileName();
-    showToast('⏳ İmzalı PDF (' + fileName + ') oluşturulup Drive\'a yükleniyor...', 3000);
+    showToast('⏳ Fotoğraflı PDF (' + fileName + ') oluşturulup Drive\'a yükleniyor...', 3000);
 
     try {
-      const jpegUrl = await generateFormCanvas();
-      const pageBlobs = [jpegUrl].map(url => {
-        const b64 = url.split(',')[1];
-        const bin = atob(b64);
-        const arr = new Uint8Array(bin.length);
-        for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
-        return arr;
-      });
-      const pdfBlob = buildMultiPageA4PDF(pageBlobs);
+      // Fotoğraflar dahil tam PDF üretimi (Sayfa 1 + Saha Fotoğrafları Sayfa 2)
+      const pdfBlob = await generateCompletePdfBlob();
       const uploaded = await uploadPDFToGoogleDrive(pdfBlob, fileName, current);
 
       if (uploaded) {
@@ -1792,6 +1808,7 @@ function doPost(e) {
         showToast('✓ Form arşive kaydedildi. (Drive kapalı veya bağlantı yok)');
       }
     } catch(e) {
+      console.error(e);
       showToast('✓ Form yerel arşive kaydedildi.');
     }
   });
@@ -2065,30 +2082,15 @@ function doPost(e) {
     saveArchiveRecords(recs);
 
     const fileName = generateSmartFileName();
-    showToast('⏳ PDF (' + fileName + ') oluşturulup Drive\'a yükleniyor...', 2000);
+    showToast('⏳ PDF (' + fileName + ') hazırlanıyor...', 2000);
     try {
-      const page1Url = await generateFormCanvas();
-      const photoImgs = Array.from(document.querySelectorAll('#photoGallery img')).map(img => img.src);
-      
-      const pageUrls = [page1Url];
-      if (photoImgs.length > 0) {
-        const page2Url = await generatePhotoPageCanvas(photoImgs);
-        pageUrls.push(page2Url);
-      }
+      // Fotoğraflar dahil tam PDF üretimi (Sayfa 1 + Saha Fotoğrafları Sayfa 2)
+      const pdfBlob = await generateCompletePdfBlob();
 
-      // Convert page JPEGs to byte arrays for buildMultiPageA4PDF
-      const pageBlobs = pageUrls.map(url => {
-        const b64 = url.split(',')[1];
-        const bin = atob(b64);
-        const arr = new Uint8Array(bin.length);
-        for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
-        return arr;
-      });
-
-      const pdfBlob = buildMultiPageA4PDF(pageBlobs);
-
+      // Arka planda Drive bağlantısı varsa Drive'a da gönder
       uploadPDFToGoogleDrive(pdfBlob, fileName, current);
 
+      // Cihaza indir
       const url = URL.createObjectURL(pdfBlob);
       const a = document.createElement('a');
       a.href = url;
@@ -2096,7 +2098,7 @@ function doPost(e) {
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      showToast('✓ ' + fileName + ' indirildi ve Drive\'a yüklendi.');
+      showToast('✓ ' + fileName + ' indirildi.');
     } catch(e) {
       console.error(e);
       window.focus();
