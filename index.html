@@ -2030,20 +2030,14 @@ function doPost(e) {
     saveArchiveRecords(recs);
 
     const fileName = generateSmartFileName();
-    showToast('⏳ PDF (' + fileName + ') hazırlanıyor ve WhatsApp başlatılıyor...', 2500);
+    showToast('⏳ Fotoğraflı PDF (' + fileName + ') hazırlanıyor ve WhatsApp başlatılıyor...', 2500);
     
     try {
-      const jpegUrl = await generateFormCanvas();
-      const pageBlobs = [jpegUrl].map(url => {
-        const b64 = url.split(',')[1];
-        const bin = atob(b64);
-        const arr = new Uint8Array(bin.length);
-        for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
-        return arr;
-      });
-      const pdfBlob = buildMultiPageA4PDF(pageBlobs);
+      // Fotoğraflar dahil tam çift sayfa PDF üretimi
+      const pdfBlob = await generateCompletePdfBlob();
       const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
+      // Arka planda Drive'a yedekle
       uploadPDFToGoogleDrive(pdfBlob, fileName, current);
 
       if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
@@ -2063,13 +2057,14 @@ function doPost(e) {
         document.body.removeChild(a);
 
         setTimeout(() => {
-          const msg = encodeURIComponent(`*AYDIN SARIKAYA MÜHENDİSLİK*\n${fileName} cihazınıza indirildi. Lütfen sohbet ekranından PDF dosyasını ekleyerek gönderiniz.`);
-          window.location.href = `https://api.whatsapp.com/send?text=${msg}`;
-        }, 800);
+          const msg = encodeURIComponent(`*AYDIN SARIKAYA MÜHENDİSLİK*\n${fileName} cihazınıza indirildi. Lütfen sohbet ekranından PDF belgesini seçip gönderiniz.`);
+          window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
+        }, 1200);
+        showToast('✓ PDF indirildi, WhatsApp açılıyor...');
       }
-    } catch (err) {
-      window.focus();
-      window.print();
+    } catch(e) {
+      console.error(e);
+      showToast('❌ Paylaşım sırasında hata oluştu.');
     }
   });
 
