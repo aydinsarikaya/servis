@@ -1621,7 +1621,14 @@ function doPost(e) {
 
     try {
       const jpegUrl = await generateFormCanvas();
-      const pdfBlob = buildA4PDF(jpegUrl);
+      const pageBlobs = [jpegUrl].map(url => {
+        const b64 = url.split(',')[1];
+        const bin = atob(b64);
+        const arr = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+        return arr;
+      });
+      const pdfBlob = buildMultiPageA4PDF(pageBlobs);
       const uploaded = await uploadPDFToGoogleDrive(pdfBlob, fileName, current);
 
       if (uploaded) {
@@ -1664,7 +1671,14 @@ function doPost(e) {
     showToast('⏳ Test PDF\'i Google Drive\'a gönderiliyor...', 3000);
     try {
       const jpegUrl = await generateFormCanvas();
-      const pdfBlob = buildA4PDF(jpegUrl);
+      const pageBlobs = [jpegUrl].map(url => {
+        const b64 = url.split(',')[1];
+        const bin = atob(b64);
+        const arr = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+        return arr;
+      });
+      const pdfBlob = buildMultiPageA4PDF(pageBlobs);
       const b64Pdf = await blobToBase64(pdfBlob);
       const testName = generateSmartFileName();
       await fetch(url, {
@@ -1852,7 +1866,14 @@ function doPost(e) {
     
     try {
       const jpegUrl = await generateFormCanvas();
-      const pdfBlob = buildA4PDF(jpegUrl);
+      const pageBlobs = [jpegUrl].map(url => {
+        const b64 = url.split(',')[1];
+        const bin = atob(b64);
+        const arr = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+        return arr;
+      });
+      const pdfBlob = buildMultiPageA4PDF(pageBlobs);
       const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
       uploadPDFToGoogleDrive(pdfBlob, fileName, current);
@@ -1895,8 +1916,25 @@ function doPost(e) {
     const fileName = generateSmartFileName();
     showToast('⏳ PDF (' + fileName + ') oluşturulup Drive\'a yükleniyor...', 2000);
     try {
-      const jpegUrl = await generateFormCanvas();
-      const pdfBlob = buildA4PDF(jpegUrl);
+      const page1Url = await generateFormCanvas();
+      const photoImgs = Array.from(document.querySelectorAll('#photoGallery img')).map(img => img.src);
+      
+      const pageUrls = [page1Url];
+      if (photoImgs.length > 0) {
+        const page2Url = await generatePhotoPageCanvas(photoImgs);
+        pageUrls.push(page2Url);
+      }
+
+      // Convert page JPEGs to byte arrays for buildMultiPageA4PDF
+      const pageBlobs = pageUrls.map(url => {
+        const b64 = url.split(',')[1];
+        const bin = atob(b64);
+        const arr = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+        return arr;
+      });
+
+      const pdfBlob = buildMultiPageA4PDF(pageBlobs);
 
       uploadPDFToGoogleDrive(pdfBlob, fileName, current);
 
@@ -1909,6 +1947,7 @@ function doPost(e) {
       document.body.removeChild(a);
       showToast('✓ ' + fileName + ' indirildi ve Drive\'a yüklendi.');
     } catch(e) {
+      console.error(e);
       window.focus();
       window.print();
     }
