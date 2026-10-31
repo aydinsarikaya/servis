@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>AYDN Teknik Servis Formu (Korumalı Giriş)</title>
+<title>AYDN Teknik Servis Formu - Çok Kullanıcılı Sistem</title>
 <style>
   :root {
     --primary: #000000;
@@ -34,8 +34,6 @@
     border: 1px solid #e5e7eb;
     box-shadow: 0 4px 16px rgba(0,0,0,0.06);
   }
-
-  /* ÜST ARAÇ ÇUBUĞU */
   .top-tools-bar {
     display: flex;
     justify-content: space-between;
@@ -48,44 +46,25 @@
     gap: 8px;
     flex-wrap: wrap;
   }
-  .top-tools-right {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-  }
+  .top-tools-right { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
   .top-btn {
     background: #ffffff;
     color: #111827;
     border: none;
-    padding: 6px 12px;
-    font-size: 11.5px;
+    padding: 5px 10px;
+    font-size: 11px;
     font-weight: 700;
     cursor: pointer;
-    border-radius: 2px;
+    border-radius: 3px;
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 4px;
   }
-  .top-btn:active {
-    opacity: 0.85;
-  }
-  .cloud-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 11px;
-    font-weight: 600;
-  }
-  .dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    display: inline-block;
-  }
+  .top-btn:active { opacity: 0.85; }
+  .cloud-status { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
   .dot-green { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
   .dot-gray { background: #9ca3af; }
-
-  /* ÜST BAŞLIK VE LOGO ALANI */
   .header-box {
     display: flex;
     justify-content: space-between;
@@ -95,413 +74,97 @@
     margin-bottom: 16px;
     gap: 15px;
   }
-  .brand-area {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-  .aydn-logo-img {
+  .brand-area { display: flex; align-items: center; gap: 14px; }
+  .aydn-logo-box {
     width: 68px;
     height: 68px;
-    object-fit: contain;
-    border-radius: 0 !important;
-    border: none !important;
-    box-shadow: none !important;
-    flex-shrink: 0;
-    background: transparent;
-  }
-  .company-info {
-    font-size: 11px;
-    color: #4b5563;
-    line-height: 1.45;
-  }
-  .company-title {
-    font-size: 14px;
-    font-weight: 800;
-    color: #000000;
-    letter-spacing: 0.3px;
-    margin-bottom: 3px;
-  }
-  .doc-meta-box {
-    text-align: right;
-    min-width: 230px;
-  }
-  .doc-title {
-    font-size: 15px;
-    font-weight: 900;
-    color: #000000;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 8px;
-  }
-  .meta-row {
+    background: #000;
+    color: #fff;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    gap: 6px;
-    margin-bottom: 4px;
-    font-size: 11.5px;
-    font-weight: 600;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 19px;
+    letter-spacing: 1px;
   }
-  .meta-row input {
-    width: 120px;
-    padding: 3px 6px;
-    font-size: 12px;
-    border: 1px solid var(--border);
-    border-radius: 0px;
-    background: #fff;
-    color: #000;
-    font-weight: 600;
-  }
-
+  .company-info { font-size: 11px; color: #4b5563; line-height: 1.45; }
+  .company-title { font-size: 14px; font-weight: 800; color: #000000; letter-spacing: 0.3px; margin-bottom: 3px; }
+  .doc-meta-box { text-align: right; min-width: 230px; }
+  .doc-title { font-size: 15px; font-weight: 900; color: #000000; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .meta-row { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin-bottom: 4px; font-size: 11.5px; font-weight: 600; }
+  .meta-row input { width: 120px; padding: 3px 6px; font-size: 12px; border: 1px solid var(--border); border-radius: 0; background: #fff; color: #000; font-weight: 600; }
   @media (max-width: 680px) {
     .header-box { flex-direction: column; }
     .doc-meta-box { text-align: left; width: 100%; margin-top: 10px; }
     .meta-row { justify-content: flex-start; }
     .form-container { padding: 14px; }
   }
-
-  /* KART VE ALAN STİLLERİ */
-  .card {
-    background: #fcfcfc;
-    border: 1px solid var(--border);
-    border-radius: 0px;
-    padding: 12px 14px;
-    margin-bottom: 12px;
-  }
+  .card { background: #fcfcfc; border: 1px solid var(--border); padding: 12px 14px; margin-bottom: 12px; }
   .card-title {
-    font-size: 11.5px;
-    font-weight: 800;
-    color: #000000;
-    margin-bottom: 8px;
-    border-bottom: 1px solid #e5e7eb;
-    padding-bottom: 4px;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    font-size: 11.5px; font-weight: 800; color: #000000; margin-bottom: 8px; border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 4px; text-transform: uppercase; letter-spacing: 0.4px; display: flex; justify-content: space-between; align-items: center;
   }
-  .grid-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; }
+  @media (max-width: 640px) { .grid-2, .grid-4 { grid-template-columns: 1fr; } }
+  label { display: block; font-size: 11px; font-weight: 600; color: #374151; margin-bottom: 3px; }
+  input[type="text"], input[type="date"], input[type="time"], input[type="email"], input[type="password"], select, textarea {
+    width: 100%; padding: 8px 10px; border: 1px solid var(--border); font-size: 12.5px; margin-bottom: 6px; background: #ffffff; color: #000000; font-family: inherit;
   }
-  .grid-4 {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    gap: 8px;
-  }
-  @media (max-width: 640px) {
-    .grid-2, .grid-4 { grid-template-columns: 1fr; }
-  }
-  label {
-    display: block;
-    font-size: 11px;
-    font-weight: 600;
-    color: #374151;
-    margin-bottom: 3px;
-  }
-  input[type="text"], input[type="date"], input[type="time"], select, textarea {
-    width: 100%;
-    padding: 8px 10px;
-    border: 1px solid var(--border);
-    border-radius: 0px;
-    font-size: 12.5px;
-    margin-bottom: 6px;
-    background: #ffffff;
-    color: #000000;
-    font-family: inherit;
-  }
-  input:focus, textarea:focus, select:focus {
-    outline: none;
-    border-color: #000000;
-  }
-  textarea {
-    resize: vertical;
-    line-height: 1.45;
-  }
-  .checkbox-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    padding: 2px 0 8px 0;
-  }
-  .checkbox-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    font-weight: 500;
-    color: #1f2937;
-    cursor: pointer;
-  }
-  .checkbox-item input {
-    width: 16px;
-    height: 16px;
-    margin: 0;
-    cursor: pointer;
-  }
-
-  /* DİNAMİK SİSTEM DETAYLARI */
-  .system-select-row {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 6px;
-  }
-  .system-select-row select {
-    flex: 1;
-    margin-bottom: 0;
-  }
-  .system-add-btn {
-    background: #111827;
-    color: #fff;
-    border: none;
-    padding: 0 14px;
-    font-size: 11.5px;
-    font-weight: 700;
-    cursor: pointer;
-    white-space: nowrap;
-  }
-
-  /* MALZEME TABLOSU */
-  .table-input {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 4px;
-  }
-  .table-input th {
-    background: #f3f4f6;
-    color: #000000;
-    font-size: 11px;
-    font-weight: 700;
-    text-align: left;
-    padding: 6px 8px;
-    border: 1px solid #d1d5db;
-  }
-  .table-input td {
-    padding: 4px;
-    border: 1px solid #d1d5db;
-    background: #ffffff;
-  }
-  .table-input input {
-    margin-bottom: 0;
-    border: 1px solid #e5e7eb;
-    padding: 6px;
-    font-size: 12px;
-  }
-  .btn-add-row {
-    background: #000000;
-    color: #ffffff;
-    border: none;
-    font-size: 11px;
-    font-weight: 700;
-    padding: 5px 12px;
-    border-radius: 0px;
-    cursor: pointer;
-  }
-
-  /* SAHA FOTOĞRAFLARI */
-  .photo-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(105px, 1fr));
-    gap: 8px;
-    margin-top: 8px;
-  }
-  .photo-box {
-    position: relative;
-    border-radius: 0px;
-    overflow: hidden;
-    height: 95px;
-    border: 1px solid var(--border);
-    background: #e5e7eb;
-  }
-  .photo-box img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
+  textarea { resize: vertical; line-height: 1.45; }
+  .checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; padding: 2px 0 8px 0; }
+  .checkbox-item { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: #1f2937; cursor: pointer; }
+  .checkbox-item input { width: 16px; height: 16px; margin: 0; cursor: pointer; }
+  .system-select-row { display: flex; gap: 6px; margin-bottom: 6px; }
+  .system-select-row select { flex: 1; margin-bottom: 0; }
+  .system-add-btn { background: #111827; color: #fff; border: none; padding: 0 14px; font-size: 11.5px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .table-input { width: 100%; border-collapse: collapse; margin-top: 4px; }
+  .table-input th { background: #f3f4f6; color: #000000; font-size: 11px; font-weight: 700; text-align: left; padding: 6px 8px; border: 1px solid #d1d5db; }
+  .table-input td { padding: 4px; border: 1px solid #d1d5db; background: #ffffff; }
+  .table-input input { margin-bottom: 0; border: 1px solid #e5e7eb; padding: 6px; font-size: 12px; }
+  .btn-add-row { background: #000000; color: #ffffff; border: none; font-size: 11px; font-weight: 700; padding: 5px 12px; cursor: pointer; }
+  .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); gap: 8px; margin-top: 8px; }
+  .photo-box { position: relative; height: 95px; border: 1px solid var(--border); background: #e5e7eb; }
+  .photo-box img { width: 100%; height: 100%; object-fit: cover; }
   .photo-box .del-btn {
-    position: absolute;
-    top: 3px;
-    right: 3px;
-    background: rgba(220, 38, 38, 0.9);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    font-size: 11px;
-    line-height: 20px;
-    text-align: center;
-    cursor: pointer;
+    position: absolute; top: 3px; right: 3px; background: rgba(220, 38, 38, 0.9); color: white; border: none;
+    border-radius: 50%; width: 20px; height: 20px; font-size: 11px; line-height: 20px; text-align: center; cursor: pointer;
   }
-
-  /* İMZA ALANI */
-  .sign-canvas {
-    border: 1px dashed #9ca3af;
-    background: #ffffff;
-    border-radius: 0px;
-    touch-action: none;
-    cursor: crosshair;
-    display: block;
-    width: 100%;
-    height: 105px;
-  }
-
-  /* SABİT BUTON ÇUBUĞU */
+  .sign-canvas { border: 1px dashed #9ca3af; background: #ffffff; touch-action: none; cursor: crosshair; display: block; width: 100%; height: 105px; }
   .action-bar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: #ffffff;
-    padding: 10px 14px;
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
-    display: flex;
-    gap: 8px;
-    z-index: 99999;
-    max-width: 860px;
-    margin: 0 auto;
-    border-top: 1px solid #d1d5db;
+    position: fixed; bottom: 0; left: 0; right: 0; background: #ffffff; padding: 10px 14px;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.15); display: flex; gap: 8px; z-index: 99999; max-width: 860px; margin: 0 auto; border-top: 1px solid #d1d5db;
   }
   .act-btn {
-    flex: 1;
-    min-height: 48px;
-    padding: 10px 8px;
-    border: none;
-    border-radius: 4px;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    user-select: none;
-    -webkit-user-select: none;
-  }
-  .act-btn:active {
-    transform: scale(0.97);
-    opacity: 0.9;
+    flex: 1; min-height: 48px; padding: 10px 8px; border: none; border-radius: 4px; font-size: 13px; font-weight: 700;
+    cursor: pointer; text-align: center; display: flex; align-items: center; justify-content: center; gap: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   }
   .btn-save { background: #1e3a8a; color: #ffffff; }
   .btn-print { background: #000000; color: #ffffff; }
   .btn-wa { background: #15803d; color: #ffffff; }
-  .btn-clear { background: #dc2626; color: #ffffff; flex: 0.35; }
-
-  /* BİLDİRİM TOAST */
+  .btn-clear { background: #dc2626; color: #ffffff; flex: 0.4; }
   #toast {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.92);
-    color: #ffffff;
-    padding: 12px 24px;
-    border-radius: 24px;
-    font-size: 13px;
-    font-weight: 600;
-    z-index: 1000000;
-    display: none;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.3);
-    text-align: center;
-    max-width: 90%;
+    position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.92); color: #ffffff;
+    padding: 12px 24px; border-radius: 24px; font-size: 13px; font-weight: 600; z-index: 1000000; display: none; box-shadow: 0 4px 14px rgba(0,0,0,0.3); text-align: center; max-width: 90%;
   }
-
-  /* MODALLAR */
   .modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.6);
-    z-index: 9999999;
-    justify-content: center;
-    align-items: center;
-    padding: 14px;
+    display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.65); z-index: 9999999;
+    justify-content: center; align-items: center; padding: 14px;
   }
-  .modal-card {
-    background: #ffffff;
-    width: 100%;
-    max-width: 820px;
-    max-height: 85vh;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    border: 2px solid #000;
-  }
-  .modal-head {
-    background: #000000;
-    color: #ffffff;
-    padding: 12px 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-weight: 800;
-    font-size: 14px;
-  }
-  .modal-body {
-    padding: 14px;
-    overflow-y: auto;
-    flex: 1;
-  }
-  .modal-foot {
-    background: #f3f4f6;
-    padding: 10px 14px;
-    border-top: 1px solid #d1d5db;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-  .archive-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12px;
-  }
-  .archive-table th {
-    background: #e5e7eb;
-    padding: 8px;
-    text-align: left;
-    border: 1px solid #d1d5db;
-  }
-  .archive-table td {
-    padding: 8px;
-    border: 1px solid #e5e7eb;
-  }
-  .row-action-btn {
-    padding: 4px 8px;
-    font-size: 11px;
-    border: 1px solid #111;
-    background: #fff;
-    cursor: pointer;
-    font-weight: 600;
-    margin-right: 4px;
-  }
-  .row-action-btn:hover {
-    background: #000;
-    color: #fff;
-  }
-  .row-del-btn {
-    border-color: #dc2626;
-    color: #dc2626;
-  }
-  .row-del-btn:hover {
-    background: #dc2626;
-    color: #fff;
-  }
-
-  /* YAZDIRMA (PRINT & PDF) AYARLARI */
+  .modal-card { background: #ffffff; width: 100%; max-width: 720px; max-height: 85vh; display: flex; flex-direction: column; border: 2px solid #000; }
+  .modal-head { background: #000000; color: #ffffff; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 13.5px; }
+  .modal-body { padding: 14px; overflow-y: auto; flex: 1; }
+  .modal-foot { background: #f3f4f6; padding: 10px 14px; border-top: 1px solid #d1d5db; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .archive-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .archive-table th { background: #e5e7eb; padding: 8px; text-align: left; border: 1px solid #d1d5db; }
+  .archive-table td { padding: 8px; border: 1px solid #e5e7eb; }
+  .row-action-btn { padding: 4px 8px; font-size: 11px; border: 1px solid #111; background: #fff; cursor: pointer; font-weight: 600; margin-right: 4px; }
   @media print {
     body { background: #ffffff !important; padding: 0 !important; color: #000 !important; }
     .form-container { box-shadow: none !important; border: none !important; padding: 0 !important; margin: 0 !important; max-width: 100% !important; }
     .action-bar, .top-tools-bar, .no-print, .btn-add-row, .photo-box .del-btn, input[type="file"], #toast, .modal-overlay, .system-add-btn { display: none !important; }
-    .card { page-break-inside: avoid; border: 1px solid #999 !important; background: transparent !important; margin-bottom: 8px !important; padding: 8px 10px !important; border-radius: 0 !important; }
-    input, textarea, select { border: 1px solid #bbb !important; background: transparent !important; color: #000 !important; border-radius: 0 !important; }
-    .header-box { border-bottom: 2px solid #000 !important; }
+    .card { page-break-inside: avoid; border: 1px solid #999 !important; background: transparent !important; margin-bottom: 8px !important; padding: 8px 10px !important; }
+    input, textarea, select { border: 1px solid #bbb !important; background: transparent !important; color: #000 !important; }
   }
 </style>
 </head>
@@ -512,114 +175,118 @@
   <div style="background:#ffffff; width:100%; max-width:380px; padding:32px 24px; border-radius:4px; box-shadow:0 20px 40px rgba(0,0,0,0.4); text-align:center;">
     <div style="width:64px; height:64px; background:#000; color:#fff; margin:0 auto 16px auto; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:20px; letter-spacing:1px;">AYDN</div>
     <div style="font-size:15px; font-weight:800; color:#0f172a; margin-bottom:4px;">AYDIN SARIKAYA MÜHENDİSLİK</div>
-    <div style="font-size:12px; color:#64748b; margin-bottom:24px;">Teknik Servis Saha Portalı Girişi</div>
+    <div style="font-size:12px; color:#64748b; margin-bottom:20px;">Teknik Servis Saha Portalı Girişi</div>
     
     <div id="loginAlert" style="display:none; background:#fee2e2; color:#b91c1c; font-size:12px; padding:8px; border-radius:4px; margin-bottom:14px; font-weight:600;">Kullanıcı adı veya şifre hatalı!</div>
 
     <div style="text-align:left; margin-bottom:12px;">
       <label style="font-size:11px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Kullanıcı Adı</label>
-      <input type="text" id="loginUsername" placeholder="Kullanıcı adınız" style="width:100%; padding:10px 12px; font-size:13px; border:1px solid #cbd5e1; border-radius:4px; outline:none; box-sizing:border-box;">
+      <input type="text" id="loginUsername" placeholder="Kullanıcı adınız" style="margin-bottom:0;">
     </div>
 
     <div style="text-align:left; margin-bottom:20px;">
       <label style="font-size:11px; font-weight:700; color:#334155; display:block; margin-bottom:4px;">Şifre</label>
-      <input type="password" id="loginPassword" placeholder="••••••••" style="width:100%; padding:10px 12px; font-size:13px; border:1px solid #cbd5e1; border-radius:4px; outline:none; box-sizing:border-box;" onkeydown="if(event.key==='Enter') checkLogin()">
+      <input type="password" id="loginPassword" placeholder="••••••••" style="margin-bottom:0;" onkeydown="if(event.key==='Enter') checkLogin()">
     </div>
 
-    <button type="button" onclick="checkLogin()" style="width:100%; padding:12px; background:#000000; color:#ffffff; font-size:13px; font-weight:700; border:none; border-radius:4px; cursor:pointer; transition:0.2s;">Giriş Yap</button>
-    <div style="font-size:10px; color:#94a3b8; margin-top:16px;">Güvenli Saha Bağlantısı • Yetkisiz erişim yasaktır</div>
+    <button type="button" onclick="checkLogin()" style="width:100%; padding:12px; background:#000000; color:#ffffff; font-size:13px; font-weight:700; border:none; border-radius:4px; cursor:pointer;">Giriş Yap</button>
+    <div style="font-size:10px; color:#94a3b8; margin-top:16px;">Varsayılan: aydin / 1234</div>
   </div>
 </div>
 
+<!-- ŞİFRE DEĞİŞTİRME MODALI -->
+<div class="modal-overlay" id="changePasswordModal">
+  <div class="modal-card" style="max-width: 420px;">
+    <div class="modal-head">
+      <span>🔑 ŞİFRE DEĞİŞTİR</span>
+      <button type="button" onclick="closeChangePasswordModal()" style="background:none; border:none; color:#fff; font-size:18px; cursor:pointer;">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="pwdAlert" style="display:none; background:#fee2e2; color:#b91c1c; font-size:11.5px; padding:8px; border-radius:4px; margin-bottom:10px; font-weight:600;"></div>
+      <label>Mevcut Şifreniz:</label>
+      <input type="password" id="curPwdInput" placeholder="Mevcut şifreniz">
+      <label>Yeni Şifre:</label>
+      <input type="password" id="newPwdInput" placeholder="En az 4 karakter">
+      <label>Yeni Şifre (Tekrar):</label>
+      <input type="password" id="newPwdConfirmInput" placeholder="Yeni şifreyi tekrar yazın">
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="top-btn" style="background:#15803d; color:#fff;" onclick="submitPasswordChange()">Kaydet</button>
+      <button type="button" class="top-btn" onclick="closeChangePasswordModal()">İptal</button>
+    </div>
+  </div>
+</div>
 
-<div id="toast"></div>
+<!-- KULLANICI YÖNETİM MODALI (SADECE ADMIN) -->
+<div class="modal-overlay" id="userManageModal">
+  <div class="modal-card" style="max-width: 600px;">
+    <div class="modal-head">
+      <span>👥 KULLANICI VE EKİP YÖNETİMİ (ADMIN)</span>
+      <button type="button" onclick="closeUserManageModal()" style="background:none; border:none; color:#fff; font-size:18px; cursor:pointer;">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:#f8fafc; border:1px solid #cbd5e1; padding:12px; margin-bottom:14px;">
+        <strong style="font-size:12px; color:#111; display:block; margin-bottom:6px;">+ Yeni Kullanıcı / Teknisyen Ekle</strong>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr auto; gap:6px; align-items:end;">
+          <div>
+            <label>Kullanıcı Adı:</label>
+            <input type="text" id="newUsername" placeholder="Örn: ahmet" style="margin-bottom:0;">
+          </div>
+          <div>
+            <label>Şifre:</label>
+            <input type="password" id="newUserPass" placeholder="Şifre" style="margin-bottom:0;">
+          </div>
+          <div>
+            <label>Rol:</label>
+            <select id="newUserRole" style="margin-bottom:0;">
+              <option value="user" selected>Teknisyen</option>
+              <option value="admin">Yönetici (Admin)</option>
+            </select>
+          </div>
+          <div>
+            <button type="button" class="top-btn" style="background:#000; color:#fff; height:36px;" onclick="addNewUser()">Ekle</button>
+          </div>
+        </div>
+      </div>
 
-<!-- 1. GOOGLE DRIVE PDF BULUT AYARI MODALI -->
+      <table class="archive-table">
+        <thead>
+          <tr>
+            <th>Kullanıcı Adı</th>
+            <th>Rol</th>
+            <th>Şifre Durumu</th>
+            <th style="text-align:center;">İşlem</th>
+          </tr>
+        </thead>
+        <tbody id="userTableBody"></tbody>
+      </table>
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="top-btn" onclick="closeUserManageModal()">Kapat</button>
+    </div>
+  </div>
+</div>
+
+<!-- GOOGLE DRIVE BULUT AYARI MODALI -->
 <div class="modal-overlay" id="cloudModal">
-  <div class="modal-card" style="max-width: 720px;">
+  <div class="modal-card">
     <div class="modal-head">
       <span>☁️ GOOGLE DRIVE'A OTOMATİK PDF YÜKLEME AYARI</span>
       <button type="button" onclick="closeCloudModal()" style="background:none; border:none; color:#fff; font-size:18px; cursor:pointer;">✕</button>
     </div>
     <div class="modal-body" style="line-height: 1.6;">
-      <p style="margin-top:0;">
-        Bu özellik sayesinde hazırladığınız servis formları <strong>[ProjeAdı]_[No]_[Tarih].pdf</strong> adlandırmasıyla doğrudan Google Drive klasörünüze otomatik olarak yüklenir.
-      </p>
-
-      <label style="font-weight:700; color:#111;">Google Apps Script Web Uygulaması URL'si:</label>
-      <input type="text" id="webhookInput" placeholder="https://script.google.com/macros/s/AKfycb.../exec" style="margin-bottom:8px;">
-
-      <div style="background:#f1f5f9; padding:12px; border-radius:4px; font-size:11.5px; color:#334155; margin-bottom:12px;">
-        <strong>🚀 Google Drive PDF Yükleyici Kodu (Google Apps Script):</strong><br>
-        1. <strong><a href="https://script.google.com" target="_blank" style="color:#2563eb;">script.google.com</a></strong> adresinde <strong>"Yeni Proje"</strong> oluşturun.<br>
-        2. Kod editörüne aşağıdaki kodu yapıştırıp kaydedin:<br>
-        <pre style="background:#fff; padding:8px; border:1px solid #cbd5e1; overflow-x:auto; margin:6px 0; font-size:10.5px;">function doPost(e) {
-  try {
-    var data = JSON.parse(e.postData.contents);
-    
-    // 1. Google Drive'da "Teknik Servis Formlari (AYDN)" klasörünü bul veya oluştur
-    var folderName = "Teknik Servis Formlari (AYDN)";
-    var folders = DriveApp.getFoldersByName(folderName);
-    var folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(folderName);
-    
-    // 2. PDF Dosyasını oluştur ve klasöre kaydet (Varsayılan olarak tamamen GİZLİ kalır)
-    var bytes = Utilities.base64Decode(data.pdfBase64);
-    var blob = Utilities.newBlob(bytes, 'application/pdf', data.fileName);
-    var file = folder.createFile(blob);
-
-    // 3. Müşteri Maili Girilmişse PDF'i Otomatik E-Posta Olarak Gönder
-    var emailSent = false;
-    var targetEmail = (data.musteriEmail || data.userEmail || "").trim();
-    if (targetEmail && targetEmail.indexOf("@") !== -1) {
-      try {
-        var subject = "Teknik Servis ve Devreye Alma Formu - " + (data.musteriAdi || "") + " (" + (data.kayitNo || data.formNo || "") + ")";
-        var bodyText = "Sayın Yetkili,\n\n" +
-          "Aydın Sarıkaya Mühendislik Limited Şirketi tarafından gerçekleştirilen teknik servis ve devreye alma işlemlerine ait onaylı servis formu ekte bilginize sunulmuştur.\n\n" +
-          "Proje / Müşteri: " + (data.musteriAdi || "-") + "\n" +
-          "Form No: " + (data.formNo || "-") + " | Kayıt No: " + (data.kayitNo || "-") + "\n" +
-          "Tarih: " + (data.tarih || "-") + "\n" +
-          "Sistem: " + (data.cihazGrubu || "-") + "\n" +
-          "Durum: " + (data.servisSonDurum || "-") + "\n\n" +
-          "İyi çalışmalar dileriz.\n\n" +
-          "AYDIN SARIKAYA MÜHENDİSLİK LTD. ŞTİ.\n" +
-          "Koç Kuleleri 2A / 13 Çankaya / ANKARA\n" +
-          "Tel: 0 532 654 67 14 | E-posta: info@aydn.com.tr";
-
-        GmailApp.sendEmail(targetEmail, subject, bodyText, {
-          name: "Aydın Sarıkaya Mühendislik",
-          attachments: [blob]
-        });
-        emailSent = true;
-      } catch (mailErr) {
-        Logger.log("Mail gönderim hatası: " + mailErr.toString());
-      }
-    }
-    
-    return ContentService.createTextOutput(JSON.stringify({
-      status: "SUCCESS",
-      fileUrl: file.getUrl(),
-      emailSent: emailSent
-    })).setMimeType(ContentService.MimeType.JSON);
-  } catch(err) {
-    return ContentService.createTextOutput(JSON.stringify({
-      status: "ERROR",
-      message: err.toString()
-    })).setMimeType(ContentService.MimeType.JSON);
-  }
-}</pre>
-        3. Sağ üstten <strong>Dağıt (Deploy) > Yeni Dağıtım</strong> seçin. Erişim iznini <strong>Herkes (Anyone)</strong> yapın ve <strong>Dağıt</strong>'a tıklayın.<br>
-        4. Alınan Web URL'sini yukarıdaki kutucuğa yapıştırın!
-      </div>
+      <p style="margin-top:0;">Formlar <strong>[ProjeAdı]_[No]_[Tarih].pdf</strong> adıyla Drive'a yüklenir ve müşteri mailine ekli PDF olarak iletilir.</p>
+      <label style="font-weight:700;">Google Apps Script Web Uygulaması URL'si:</label>
+      <input type="text" id="webhookInput" placeholder="https://script.google.com/macros/s/.../exec">
     </div>
     <div class="modal-foot">
       <button type="button" class="top-btn" style="background:#15803d; color:#fff;" onclick="saveCloudSettings()">💾 Bağlantıyı Kaydet</button>
-      <button type="button" class="top-btn" onclick="testCloudPDFUpload()">🔍 Test PDF'i Yükle</button>
       <button type="button" class="top-btn" onclick="closeCloudModal()">Kapat</button>
     </div>
   </div>
 </div>
 
-<!-- 2. KAYIT DEFTERİ / ARŞİV MODAL PENCERESİ -->
+<!-- ARŞİV MODALI -->
 <div class="modal-overlay" id="archiveModal">
   <div class="modal-card">
     <div class="modal-head">
@@ -627,16 +294,14 @@
       <button type="button" onclick="closeArchiveModal()" style="background:none; border:none; color:#fff; font-size:18px; cursor:pointer;">✕</button>
     </div>
     <div class="modal-body">
-      <div id="emptyArchiveMsg" style="text-align:center; padding: 30px; color:#6b7280; display:none;">
-        Henüz kaydedilmiş bir servis formu bulunmuyor.<br>Formu doldurup <strong>"💾 Drive & Arşive Kaydet"</strong> butonuna basarak kaydedebilirsiniz.
-      </div>
+      <div id="emptyArchiveMsg" style="text-align:center; padding: 30px; color:#6b7280; display:none;">Kayıtlı form bulunmuyor.</div>
       <table class="archive-table" id="archiveTable">
         <thead>
           <tr>
             <th style="width: 14%;">Tarih</th>
             <th style="width: 16%;">No / Form No</th>
-            <th style="width: 34%;">Proje & Müşteri / Kurum</th>
-            <th style="width: 20%;">Sistem</th>
+            <th style="width: 32%;">Proje & Müşteri / Kurum</th>
+            <th style="width: 22%;">Sistem</th>
             <th style="width: 16%; text-align: center;">İşlem</th>
           </tr>
         </thead>
@@ -644,42 +309,38 @@
       </table>
     </div>
     <div class="modal-foot">
-      <div>
-        <button type="button" class="top-btn" onclick="exportArchiveCSV()">📊 Excel/CSV Olarak İndir</button>
-      </div>
-      <div>
-        <button type="button" class="top-btn" style="background:#dc2626; color:#fff;" onclick="clearAllArchive()">🗑 Tümünü Temizle</button>
-        <button type="button" class="top-btn" onclick="closeArchiveModal()">Kapat</button>
-      </div>
+      <button type="button" class="top-btn" onclick="exportArchiveCSV()">📊 Excel/CSV Olarak İndir</button>
+      <button type="button" class="top-btn" style="background:#dc2626; color:#fff;" onclick="clearAllArchive()">🗑 Tümünü Temizle</button>
+      <button type="button" class="top-btn" onclick="closeArchiveModal()">Kapat</button>
     </div>
   </div>
 </div>
 
 <div class="form-container" id="serviceForm">
 
-  <!-- Üst Araç Çubuğu: Arşiv & Bulut Entegrasyonu -->
+  <!-- Üst Araç Çubuğu: Kullanıcı Bilgisi & Yetki Butonları -->
   <div class="top-tools-bar no-print">
-    <div>
+    <div style="display:flex; align-items:center; gap:8px;">
       <span>💼 <strong>AYDIN SARIKAYA MÜHENDİSLİK</strong></span>
+      <span id="activeUserBadge" style="background:#334155; padding:2px 8px; border-radius:10px; font-size:10.5px;">👤 aydin</span>
     </div>
     <div class="top-tools-right">
-      <span class="cloud-status" id="cloudStatusBadge" onclick="openCloudModal()" style="cursor:pointer;" title="Google Drive durumunu yapılandırmak için dokunun">
+      <span class="cloud-status" id="cloudStatusBadge" onclick="openCloudModal()" style="cursor:pointer;">
         <span class="dot dot-gray" id="cloudDot"></span>
         <span id="cloudStatusText">Drive: Kapalı</span>
       </span>
-      <button type="button" class="top-btn" onclick="openCloudModal()">☁️ Google Drive Ayarı</button>
-      <button type="button" class="top-btn" onclick="openArchiveModal()">
-        📂 Kayıtlı Formlar (<span id="archiveCountBadge">0</span>)
-      </button>
+      <button type="button" class="top-btn" onclick="openCloudModal()">☁️ Drive</button>
+      <button type="button" class="top-btn" onclick="openArchiveModal()">📂 Formlar (<span id="archiveCountBadge">0</span>)</button>
+      <button type="button" class="top-btn" id="btnAdminUsers" style="display:none;" onclick="openUserManageModal()">👥 Kullanıcılar</button>
+      <button type="button" class="top-btn" onclick="openChangePasswordModal()">🔑 Şifre</button>
+      <button type="button" class="top-btn" style="background:#dc2626; color:#fff;" onclick="logout()">🔒 Çıkış</button>
     </div>
   </div>
 
   <!-- Üst Bilgi, Orijinal Kavisiz AYDN Logo & Başlık -->
   <div class="header-box">
     <div class="brand-area">
-      <!-- Orijinal Word Dosyasındaki AYDN Logosu (Kavissiz / Dikdörtgen Keskin Kenar) -->
-      <img src="data:image/jpeg;base64,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" class="aydn-logo-img" alt="AYDN Logo">
-      
+      <div class="aydn-logo-box">AYDN</div>
       <div class="company-info">
         <div class="company-title">AYDIN SARIKAYA MÜHENDİSLİK LİMİTED ŞİRKETİ</div>
         Söğütözü Cad. Koç Kuleleri 2A / 13 Çankaya / ANKARA 06510<br>
@@ -691,18 +352,9 @@
 
     <div class="doc-meta-box">
       <div class="doc-title">TEKNİK SERVİS VE DEVREYE ALMA FORMU</div>
-      <div class="meta-row">
-        <span>Form No:</span>
-        <input type="text" id="formNo" value="2025_TSVDAF_1">
-      </div>
-      <div class="meta-row">
-        <span>No:</span>
-        <input type="text" id="kayitNo" value="285">
-      </div>
-      <div class="meta-row">
-        <span>Tarih:</span>
-        <input type="date" id="tarih" value="2026-09-02">
-      </div>
+      <div class="meta-row"><span>Form No:</span><input type="text" id="formNo" value="2025_TSVDAF_1"></div>
+      <div class="meta-row"><span>No:</span><input type="text" id="kayitNo" value="285"></div>
+      <div class="meta-row"><span>Tarih:</span><input type="date" id="tarih"></div>
     </div>
   </div>
 
@@ -715,26 +367,14 @@
       <label class="checkbox-item"><input type="checkbox" value="Periyodik Bakım"> Periyodik Bakım</label>
       <label class="checkbox-item"><input type="checkbox" value="Kurulum / Montaj"> Kurulum / Montaj</label>
       <label class="checkbox-item"><input type="checkbox" value="Yazılım / Lisans"> Yazılım / Lisans</label>
-      <label class="checkbox-item"><input type="checkbox" value="Eğitim" checked> Eğitim</label>
+      <label class="checkbox-item"><input type="checkbox" value="Eğitim"> Eğitim</label>
       <label class="checkbox-item"><input type="checkbox" value="Test & Teslim" checked> Test & Teslim</label>
     </div>
     <div class="grid-4">
-      <div>
-        <label>Başlangıç Tarihi:</label>
-        <input type="date" id="baslangicTarihi" value="2026-09-01">
-      </div>
-      <div>
-        <label>Bitiş Tarihi:</label>
-        <input type="date" id="bitisTarihi" value="2026-09-02">
-      </div>
-      <div>
-        <label>Giriş Saati:</label>
-        <input type="time" id="girisSaati" value="09:00">
-      </div>
-      <div>
-        <label>Çıkış Saati:</label>
-        <input type="time" id="cikisSaati" value="18:00">
-      </div>
+      <div><label>Başlangıç Tarihi:</label><input type="date" id="baslangicTarihi"></div>
+      <div><label>Bitiş Tarihi:</label><input type="date" id="bitisTarihi"></div>
+      <div><label>Giriş Saati:</label><input type="time" id="girisSaati" value="09:00"></div>
+      <div><label>Çıkış Saati:</label><input type="time" id="cikisSaati" value="18:00"></div>
     </div>
   </div>
 
@@ -744,13 +384,13 @@
     <div class="grid-2">
       <div>
         <label>Proje / Müşteri / Tesis Adı:</label>
-        <input type="text" id="musteriAdi" value="AYDIN VILLA">
+        <input type="text" id="musteriAdi" placeholder="Örn: Burhaniye Adalet Binası">
         <label>İlgili Birim / Muhatap:</label>
-        <input type="text" id="ilgiliBirim" value="Adalet Bakanlığı İşletme Ekibi">
+        <input type="text" id="ilgiliBirim" placeholder="İlgili Birim / Yetkili">
       </div>
       <div>
         <label>Adres / Lokasyon:</label>
-        <input type="text" id="musteriAdres" value="Mahkeme Mah. 24006 Sokak No:1 Balıkesir/Burhaniye">
+        <input type="text" id="musteriAdres" placeholder="Tesis / Şantiye Adresi">
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
           <div>
             <label>Telefon / İletişim:</label>
@@ -765,7 +405,7 @@
     </div>
   </div>
 
-  <!-- SİSTEM DETAYLARI (YALNIZCA SİSTEM SEÇİMİ, IP VE YAZILIM KALDIRILDI) -->
+  <!-- SİSTEM DETAYLARI (YALNIZCA SİSTEM SEÇİMİ) -->
   <div class="card">
     <div class="card-title">
       <span>SİSTEM DETAYLARI</span>
@@ -782,16 +422,10 @@
     </div>
   </div>
 
-  <!-- Yapılan İşlemler Raporu -->
+  <!-- Yapılan İşlemler Raporu (Sıfırlandığında Tamamen Boşalır) -->
   <div class="card">
     <div class="card-title">Yapılan İşlemler:</div>
-    <textarea id="islemler" rows="7">01.09.2026-02.09.2026 tarihlerinde network sistemi hazır hale geldiği için tüm Routerlar network üzerinden haberleştirilmiştir.
-
-Sistem bilgisayarı kurulmuştur. Programlama yazılımı ve grafik ekran yazılımı kurulup, lisanslaması yapılmıştır. Adalet Bakanlığı tarafından verilen 20.20.20.30’dan başlayarak tüm Router IP adresleri değiştirilmiştir.
-
-Sistemin kullanımı ile ilgili kullanıcı eğitimi Adalet Bakanlığı personeline verilmiştir. 
-
-Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalışır vaziyette Adalet Bakanlığı İşletme Ekibine teslim edilmiştir.</textarea>
+    <textarea id="islemler" rows="7" placeholder="Sahada yapılan teknik servis, devreye alma ve test detaylarını buraya yazınız..."></textarea>
   </div>
 
   <!-- Kullanılan Malzeme ve Parça Tablosu -->
@@ -806,15 +440,15 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
           <th style="width: 50%;">Malzeme / Parça Tanımı</th>
           <th style="width: 20%;">Miktar</th>
           <th style="width: 20%;">Seri No / Kod</th>
-          <th style="width: 10%; text-align: center;" class="no-print">Sil</th>
+          <th style="width: 10%; text-align: center;">Sil</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td><input type="text" value="Aydınlatma Kontrol Üniteleri ve Modülleri"></td>
-          <td><input type="text" value="1 Set"></td>
-          <td><input type="text" value="AK-2026"></td>
-          <td style="text-align: center;" class="no-print"><button type="button" onclick="removeRow(this)" style="color:red; background:none; border:none; cursor:pointer; font-weight:bold; font-size:14px;">✕</button></td>
+          <td><input type="text" placeholder="Parça veya modül adı"></td>
+          <td><input type="text" placeholder="Adet / Set"></td>
+          <td><input type="text" placeholder="Seri No / Kod"></td>
+          <td style="text-align: center;"><button type="button" onclick="removeRow(this)" style="color:red; background:none; border:none; cursor:pointer; font-weight:bold;">✕</button></td>
         </tr>
       </tbody>
     </table>
@@ -834,9 +468,7 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
   <div class="grid-2">
     <div class="card">
       <div class="card-title">Katılımcılar :</div>
-      <textarea id="katilimcilar" rows="4">1. Aydın SARIKAYA
-2. Adalet Bakanlığı Yetkilisi
-3. Adalet Bakanlığı İşletme Ekibi</textarea>
+      <textarea id="katilimcilar" rows="4" placeholder="1. İsim Soyisim - Görev/Unvan&#10;2. İsim Soyisim - Görev/Unvan"></textarea>
     </div>
     <div class="card">
       <div class="card-title">Servis Teslim Durumu:</div>
@@ -852,7 +484,7 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
     </div>
   </div>
 
-  <!-- İmza Alanları (Dokunmatik Ekran / Parmakla İmza) -->
+  <!-- İmza Alanları -->
   <div class="grid-2" style="margin-top: 10px;">
     <div class="card">
       <div class="card-title">Teslim Eden / İşlemi Yapan</div>
@@ -860,9 +492,9 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
       <input type="text" id="teslimEden" value="Aydın SARIKAYA">
       <label>Firma:</label>
       <input type="text" value="Aydın Sarıkaya Mühendislik Ltd. Şti." readonly>
-      <label>İmza (Dokunarak İmzalayınız):</label>
+      <label>İmza:</label>
       <canvas id="sign1" class="sign-canvas"></canvas>
-      <button type="button" class="no-print" style="margin-top: 5px; font-size: 11px; padding: 4px 10px; border-radius: 0px; border: 1px solid #d1d5db; background: #fff; cursor: pointer;" onclick="clearCanvas('sign1')">İmzayı Temizle</button>
+      <button type="button" class="no-print" style="margin-top: 5px; font-size: 11px; padding: 4px 10px;" onclick="clearCanvas('sign1')">İmzayı Temizle</button>
     </div>
 
     <div class="card">
@@ -870,10 +502,10 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
       <label>Yetkili Adı Soyadı:</label>
       <input type="text" id="teslimAlan" placeholder="Teslim Alan Yetkili">
       <label>Kurum / Birim:</label>
-      <input type="text" id="teslimAlanGorev" value="Adalet Bakanlığı İşletme Ekibi">
-      <label>İmza (Müşteri İmza Alanı):</label>
+      <input type="text" id="teslimAlanGorev" placeholder="Kurum / Görev">
+      <label>İmza:</label>
       <canvas id="sign2" class="sign-canvas"></canvas>
-      <button type="button" class="no-print" style="margin-top: 5px; font-size: 11px; padding: 4px 10px; border-radius: 0px; border: 1px solid #d1d5db; background: #fff; cursor: pointer;" onclick="clearCanvas('sign2')">İmzayı Temizle</button>
+      <button type="button" class="no-print" style="margin-top: 5px; font-size: 11px; padding: 4px 10px;" onclick="clearCanvas('sign2')">İmzayı Temizle</button>
     </div>
   </div>
 
@@ -881,21 +513,12 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
 
 <!-- SABİT AKSİYON BUTONLARI -->
 <div class="action-bar no-print">
-  <button type="button" class="act-btn btn-save" id="btnSaveRecord">
-    💾 Drive & Arşive Kaydet
-  </button>
-  <button type="button" class="act-btn btn-print" id="btnExportPDF">
-    📄 PDF Kaydet
-  </button>
-  <button type="button" class="act-btn btn-wa" id="btnShareWA">
-    💬 WhatsApp (PDF)
-  </button>
-  <button type="button" class="act-btn btn-clear" id="btnReset">
-    🔄 Sıfırla
-  </button>
+  <button type="button" class="act-btn btn-save" id="btnSaveRecord">💾 Drive & Arşive Kaydet</button>
+  <button type="button" class="act-btn btn-print" id="btnExportPDF">📄 PDF Kaydet</button>
+  <button type="button" class="act-btn btn-wa" id="btnShareWA">💬 WhatsApp (PDF)</button>
+  <button type="button" class="act-btn btn-clear" id="btnReset">🔄 Sıfırla</button>
 </div>
 
-<!-- GİZLİ YÜKSEK ÇÖZÜNÜRLÜKLÜ ÇIKTI TUVALİ -->
 <canvas id="exportCanvas" style="display:none;"></canvas>
 
 <script>
@@ -906,23 +529,256 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
     setTimeout(() => { toast.style.display = 'none'; }, duration || 3000);
   }
 
-  // 1. SİSTEM DETAYLARI LİSTESİ (ROUTER SİLİNDİ, AYDINLATMA VE ZAYIF AKIM MEVCUT)
-  const SYSTEM_LIST_KEY = 'aydn_custom_systems_list_v3';
+  // 1. KULLANICI & ŞİFRE YÖNETİM SİSTEMİ
+  const USERS_DB_KEY = 'aydn_users_db_v1';
 
+  function getUsersDB() {
+    const defaultDB = {
+      "aydin": { password: "1234", role: "admin", name: "Aydın SARIKAYA" }
+    };
+    try {
+      const stored = localStorage.getItem(USERS_DB_KEY);
+      if (!stored) {
+        localStorage.setItem(USERS_DB_KEY, JSON.stringify(defaultDB));
+        return defaultDB;
+      }
+      return JSON.parse(stored);
+    } catch(e) {
+      return defaultDB;
+    }
+  }
+
+  function saveUsersDB(db) {
+    localStorage.setItem(USERS_DB_KEY, JSON.stringify(db));
+  }
+
+  function getCurrentUser() {
+    return sessionStorage.getItem('aydn_current_user') || 'aydin';
+  }
+
+  function checkLogin() {
+    const u = document.getElementById('loginUsername').value.trim().toLowerCase();
+    const p = document.getElementById('loginPassword').value.trim();
+    const alertBox = document.getElementById('loginAlert');
+    const db = getUsersDB();
+
+    if (db[u] && db[u].password === p) {
+      sessionStorage.setItem('aydn_auth_logged_in', 'true');
+      sessionStorage.setItem('aydn_current_user', u);
+      document.getElementById('loginOverlay').style.display = 'none';
+      alertBox.style.display = 'none';
+      setupUserUI();
+      showToast("✓ Giriş başarılı. Hoş geldiniz!");
+    } else {
+      alertBox.style.display = 'block';
+    }
+  }
+
+  function logout() {
+    if (confirm("Oturumu kapatmak istediğinize emin misiniz?")) {
+      sessionStorage.removeItem('aydn_auth_logged_in');
+      sessionStorage.removeItem('aydn_current_user');
+      document.getElementById('loginOverlay').style.display = 'flex';
+      document.getElementById('loginUsername').value = '';
+      document.getElementById('loginPassword').value = '';
+      document.getElementById('loginAlert').style.display = 'none';
+    }
+  }
+
+  function setupUserUI() {
+    const user = getCurrentUser();
+    const db = getUsersDB();
+    const userData = db[user] || { role: "user" };
+
+    const badge = document.getElementById('activeUserBadge');
+    if (badge) badge.innerText = `👤 ${user} (${userData.role === 'admin' ? 'Admin' : 'Teknisyen'})`;
+
+    const adminBtn = document.getElementById('btnAdminUsers');
+    if (adminBtn) {
+      adminBtn.style.display = (userData.role === 'admin') ? 'inline-flex' : 'none';
+    }
+  }
+
+  // Şifre Değiştirme
+  function openChangePasswordModal() {
+    document.getElementById('curPwdInput').value = '';
+    document.getElementById('newPwdInput').value = '';
+    document.getElementById('newPwdConfirmInput').value = '';
+    document.getElementById('pwdAlert').style.display = 'none';
+    document.getElementById('changePasswordModal').style.display = 'flex';
+  }
+  function closeChangePasswordModal() {
+    document.getElementById('changePasswordModal').style.display = 'none';
+  }
+
+  function submitPasswordChange() {
+    const user = getCurrentUser();
+    const db = getUsersDB();
+    const curP = document.getElementById('curPwdInput').value.trim();
+    const newP = document.getElementById('newPwdInput').value.trim();
+    const newPC = document.getElementById('newPwdConfirmInput').value.trim();
+    const alertBox = document.getElementById('pwdAlert');
+
+    if (!db[user] || db[user].password !== curP) {
+      alertBox.innerText = "Mevcut şifrenizi hatalı girdiniz!";
+      alertBox.style.display = 'block';
+      return;
+    }
+    if (newP.length < 4) {
+      alertBox.innerText = "Yeni şifre en az 4 karakter olmalıdır!";
+      alertBox.style.display = 'block';
+      return;
+    }
+    if (newP !== newPC) {
+      alertBox.innerText = "Yeni şifreler eşleşmiyor!";
+      alertBox.style.display = 'block';
+      return;
+    }
+
+    db[user].password = newP;
+    saveUsersDB(db);
+    closeChangePasswordModal();
+    showToast("✓ Şifreniz başarıyla güncellendi!");
+  }
+
+  // Kullanıcı Yönetimi (Admin)
+  function openUserManageModal() {
+    renderUsersList();
+    document.getElementById('userManageModal').style.display = 'flex';
+  }
+  function closeUserManageModal() {
+    document.getElementById('userManageModal').style.display = 'none';
+  }
+
+  function renderUsersList() {
+    const db = getUsersDB();
+    const tbody = document.getElementById('userTableBody');
+    tbody.innerHTML = '';
+
+    Object.keys(db).forEach(u => {
+      const isAydin = (u === 'aydin');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><strong>${u}</strong></td>
+        <td><span style="background:${db[u].role==='admin'?'#000':'#64748b'}; color:#fff; padding:2px 6px; border-radius:3px; font-size:10.5px;">${db[u].role==='admin'?'Yönetici':'Teknisyen'}</span></td>
+        <td><code>••••••••</code></td>
+        <td style="text-align:center;">
+          <button type="button" class="row-action-btn" onclick="adminResetPassword('${u}')">Şifre Sıfırla</button>
+          ${!isAydin ? `<button type="button" class="row-action-btn" style="color:red; border-color:red;" onclick="adminDeleteUser('${u}')">Sil</button>` : ''}
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function addNewUser() {
+    const u = document.getElementById('newUsername').value.trim().toLowerCase();
+    const p = document.getElementById('newUserPass').value.trim();
+    const r = document.getElementById('newUserRole').value;
+    const db = getUsersDB();
+
+    if (!u || !p) {
+      alert("Kullanıcı adı ve şifre zorunludur!");
+      return;
+    }
+    if (db[u]) {
+      alert("Bu kullanıcı adı zaten mevcut!");
+      return;
+    }
+    db[u] = { password: p, role: r };
+    saveUsersDB(db);
+    document.getElementById('newUsername').value = '';
+    document.getElementById('newUserPass').value = '';
+    renderUsersList();
+    showToast("✓ Yeni kullanıcı eklendi.");
+  }
+
+  function adminResetPassword(targetUser) {
+    const newP = prompt(`${targetUser} kullanıcısı için yeni şifreyi giriniz:`);
+    if (newP && newP.trim().length >= 4) {
+      const db = getUsersDB();
+      db[targetUser].password = newP.trim();
+      saveUsersDB(db);
+      showToast(`✓ ${targetUser} kullanıcısının şifresi değiştirildi.`);
+    } else if (newP) {
+      alert("Şifre en az 4 karakter olmalıdır!");
+    }
+  }
+
+  function adminDeleteUser(targetUser) {
+    if (confirm(`${targetUser} kullanıcısını silmek istediğinize emin misiniz?`)) {
+      const db = getUsersDB();
+      delete db[targetUser];
+      saveUsersDB(db);
+      renderUsersList();
+      showToast("Kullanıcı silindi.");
+    }
+  }
+
+  // 2. TÜM ALANLARI TAM SIFIRLAMA
+  function resetAllFormFields() {
+    if (!confirm('Tüm doldurulabilir alanlar, yapılan işlemler ve imzalar tamamen temizlenecektir. Onaylıyor musunuz?')) return;
+
+    // Metin ve tarih alanları
+    document.getElementById('musteriAdi').value = '';
+    document.getElementById('ilgiliBirim').value = '';
+    document.getElementById('musteriAdres').value = '';
+    document.getElementById('musteriTel').value = '';
+    document.getElementById('musteriEmail').value = '';
+    document.getElementById('islemler').value = '';
+    document.getElementById('katilimcilar').value = '';
+    document.getElementById('musteriNotu').value = '';
+    document.getElementById('teslimAlan').value = '';
+    document.getElementById('teslimAlanGorev').value = '';
+
+    // Tarihler
+    const today = new Date().toISOString().slice(0,10);
+    document.getElementById('tarih').value = today;
+    document.getElementById('baslangicTarihi').value = today;
+    document.getElementById('bitisTarihi').value = today;
+    document.getElementById('girisSaati').value = '09:00';
+    document.getElementById('cikisSaati').value = '18:00';
+
+    // Malzeme tablosu
+    const tbody = document.querySelector('#materialTable tbody');
+    tbody.innerHTML = `
+      <tr>
+        <td><input type="text" placeholder="Parça veya modül adı"></td>
+        <td><input type="text" placeholder="Adet / Set"></td>
+        <td><input type="text" placeholder="Seri No / Kod"></td>
+        <td style="text-align: center;"><button type="button" onclick="removeRow(this)" style="color:red; background:none; border:none; cursor:pointer; font-weight:bold;">✕</button></td>
+      </tr>
+    `;
+
+    // Fotoğraflar
+    document.getElementById('photoGallery').innerHTML = '';
+    document.getElementById('photoInput').value = '';
+
+    // İmzalar
+    clearCanvas('sign1');
+    clearCanvas('sign2');
+
+    // Onay kutuları (Checkboxlar)
+    document.querySelectorAll('#serviceTypeGroup input[type="checkbox"]').forEach((cb, idx) => {
+      cb.checked = (cb.value === "Devreye Alma" || cb.value === "Test & Teslim");
+    });
+
+    showToast("✓ Tüm alanlar temizlendi. Yeni servis için hazır!");
+  }
+
+  document.getElementById('btnReset').addEventListener('click', resetAllFormFields);
+
+  // 3. SİSTEM DETAYLARI LİSTESİ
+  const SYSTEM_LIST_KEY = 'aydn_custom_systems_list_v3';
   function getStoredSystems() {
-    const defaults = [
-      "Aydınlatma Kontrol Sistemi",
-      "Zayıf Akım Sistemi"
-    ];
+    const defaults = ["Aydınlatma Kontrol Sistemi", "Zayıf Akım Sistemi"];
     try {
       const stored = localStorage.getItem(SYSTEM_LIST_KEY);
       if (!stored) return defaults;
       const list = JSON.parse(stored);
       defaults.forEach(d => { if (!list.includes(d)) list.push(d); });
       return list;
-    } catch(e) {
-      return defaults;
-    }
+    } catch(e) { return defaults; }
   }
 
   function refreshSystemSelect(selectedVal) {
@@ -940,7 +796,7 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
   }
 
   function promptAddNewSystem() {
-    const newSys = prompt("Yeni Sistem Detayı adını yazınız (Örn: Yangın Algılama Sistemi, Seslendirme Sistemi):");
+    const newSys = prompt("Yeni Sistem Detayı adını yazınız:");
     if (newSys && newSys.trim().length > 0) {
       const trimmed = newSys.trim();
       let list = getStoredSystems();
@@ -953,37 +809,19 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
     }
   }
 
-  // 2. DOSYA ADI OLUŞTURUCU: [ProjeAdı]_[No]_[Tarih].pdf
+  // 4. DOSYA ADI OLUŞTURUCU: [ProjeAdı]_[No]_[Tarih].pdf
   function generateSmartFileName() {
-    const musteri = document.getElementById('musteriAdi').value.trim() || 'Servis_Projesi';
+    const musteri = document.getElementById('musteriAdi').value.trim() || 'Servis_Formu';
     const no = document.getElementById('kayitNo').value.trim() || 'No';
     const tarih = document.getElementById('tarih').value.trim() || new Date().toISOString().slice(0,10);
-
-    const cleanStr = (str) => {
-      return str
-        .replace(/ç/g, 'c').replace(/Ç/g, 'C')
-        .replace(/ğ/g, 'g').replace(/Ğ/g, 'G')
-        .replace(/ı/g, 'i').replace(/İ/g, 'I')
-        .replace(/ö/g, 'o').replace(/Ö/g, 'O')
-        .replace(/ş/g, 's').replace(/Ş/g, 'S')
-        .replace(/ü/g, 'u').replace(/Ü/g, 'U')
-        .replace(/[^a-zA-Z0-9_-]/g, '_')
-        .replace(/_+/g, '_')
-        .replace(/^_|_$/g, '');
-    };
-
-    const cleanMusteri = cleanStr(musteri).substring(0, 35);
-    const cleanNo = cleanStr(no);
-    const cleanTarih = cleanStr(tarih);
-
-    return `${cleanMusteri}_${cleanNo}_${cleanTarih}.pdf`;
+    const cleanStr = (str) => str.replace(/ç/g, 'c').replace(/Ç/g, 'C').replace(/ğ/g, 'g').replace(/Ğ/g, 'G').replace(/ı/g, 'i').replace(/İ/g, 'I').replace(/ö/g, 'o').replace(/Ö/g, 'O').replace(/ş/g, 's').replace(/Ş/g, 'S').replace(/ü/g, 'u').replace(/Ü/g, 'U').replace(/[^a-zA-Z0-9_-]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
+    return `${cleanStr(musteri).substring(0, 35)}_${cleanStr(no)}_${cleanStr(tarih)}.pdf`;
   }
 
-  // 3. DOKUNMATİK İMZA ALTYAPISI
+  // 5. İMZA ALTYAPISI
   function initSignPad(id) {
     const canvas = document.getElementById(id);
     const ctx = canvas.getContext('2d');
-    
     function resizeCanvas() {
       const rect = canvas.getBoundingClientRect();
       if (rect.width === 0) return;
@@ -996,61 +834,30 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
     }
-    
     window.addEventListener('resize', resizeCanvas);
     setTimeout(resizeCanvas, 200);
-
     let isDrawing = false;
-
     function getPos(e) {
       const rect = canvas.getBoundingClientRect();
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      return {
-        x: clientX - rect.left,
-        y: clientY - rect.top
-      };
+      return { x: clientX - rect.left, y: clientY - rect.top };
     }
-
-    function start(e) {
-      isDrawing = true;
-      const p = getPos(e);
-      ctx.beginPath();
-      ctx.moveTo(p.x, p.y);
-      if (e.cancelable && e.type.startsWith('touch')) e.preventDefault();
-    }
-
-    function draw(e) {
-      if (!isDrawing) return;
-      const p = getPos(e);
-      ctx.lineTo(p.x, p.y);
-      ctx.stroke();
-      if (e.cancelable && e.type.startsWith('touch')) e.preventDefault();
-    }
-
-    function stop() {
-      isDrawing = false;
-    }
-
-    canvas.addEventListener('mousedown', start);
-    canvas.addEventListener('mousemove', draw);
-    window.addEventListener('mouseup', stop);
-
-    canvas.addEventListener('touchstart', start, { passive: false });
-    canvas.addEventListener('touchmove', draw, { passive: false });
-    window.addEventListener('touchend', stop);
+    canvas.addEventListener('mousedown', (e) => { isDrawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); });
+    canvas.addEventListener('mousemove', (e) => { if (!isDrawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); });
+    window.addEventListener('mouseup', () => { isDrawing = false; });
+    canvas.addEventListener('touchstart', (e) => { isDrawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); if (e.cancelable) e.preventDefault(); }, { passive: false });
+    canvas.addEventListener('touchmove', (e) => { if (!isDrawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); if (e.cancelable) e.preventDefault(); }, { passive: false });
+    window.addEventListener('touchend', () => { isDrawing = false; });
   }
 
   function clearCanvas(id) {
     const canvas = document.getElementById(id);
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
   }
-
   initSignPad('sign1');
   initSignPad('sign2');
 
-  // 4. MALZEME SATIRI EKLE / SİL
   function addMaterialRow(val1, val2, val3) {
     const tbody = document.querySelector('#materialTable tbody');
     const tr = document.createElement('tr');
@@ -1058,18 +865,12 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
       <td><input type="text" placeholder="Malzeme / Parça" value="${val1 || ''}"></td>
       <td><input type="text" placeholder="Miktar" value="${val2 || ''}"></td>
       <td><input type="text" placeholder="Seri No" value="${val3 || ''}"></td>
-      <td style="text-align: center;" class="no-print">
-        <button type="button" onclick="removeRow(this)" style="color:red; background:none; border:none; cursor:pointer; font-weight:bold; font-size:14px;">✕</button>
-      </td>
+      <td style="text-align: center;"><button type="button" onclick="removeRow(this)" style="color:red; background:none; border:none; cursor:pointer; font-weight:bold;">✕</button></td>
     `;
     tbody.appendChild(tr);
   }
+  function removeRow(btn) { btn.closest('tr').remove(); }
 
-  function removeRow(btn) {
-    btn.closest('tr').remove();
-  }
-
-  // 5. SAHA FOTOĞRAFLARI EKLEME
   function handlePhotos(event) {
     const gallery = document.getElementById('photoGallery');
     const files = event.target.files;
@@ -1089,103 +890,48 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
     }
   }
 
-  // 6. SAF JAVASCRIPT İLE RESMİ STANDART A4 PDF OLUŞTURMA
-  function buildA4PDF(jpegDataUrl) {
-    const base64Data = jpegDataUrl.split(',')[1];
-    const binaryStr = atob(base64Data);
-    const len = binaryStr.length;
-    const bytes = new Uint8Array(len);
-    for (let i = 0; i < len; i++) {
-      bytes[i] = binaryStr.charCodeAt(i);
-    }
-
-    const header = "%PDF-1.4\n";
-    const obj1 = "1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n";
-    const obj2 = "2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n";
-    const obj3 = "3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /XObject << /Im1 4 0 R >> >> /Contents 5 0 R >>\nendobj\n";
-    
-    const obj4Header = `4 0 obj\n<< /Type /XObject /Subtype /Image /Width 1240 /Height 1754 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${len} >>\nstream\n`;
-    const obj4Footer = "\nendstream\nendobj\n";
-    
-    const streamContent = "q 595.28 0 0 841.89 0 0 cm /Im1 Do Q\n";
-    const obj5 = `5 0 obj\n<< /Length ${streamContent.length} >>\nstream\n${streamContent}endstream\nendobj\n`;
-
-    const enc = new TextEncoder();
-    const hB = enc.encode(header);
-    const o1B = enc.encode(obj1);
-    const o2B = enc.encode(obj2);
-    const o3B = enc.encode(obj3);
-    const o4HB = enc.encode(obj4Header);
-    const o4FB = enc.encode(obj4Footer);
-    const o5B = enc.encode(obj5);
-
-    let offset = hB.length;
-    const off1 = offset; offset += o1B.length;
-    const off2 = offset; offset += o2B.length;
-    const off3 = offset; offset += o3B.length;
-    const off4 = offset; offset += o4HB.length + bytes.length + o4FB.length;
-    const off5 = offset; offset += o5B.length;
-
-    const pad = (n) => String(n).padStart(10, '0');
-    const xref = `xref\n0 6\n0000000000 65535 f \n${pad(off1)} 00000 n \n${pad(off2)} 00000 n \n${pad(off3)} 00000 n \n${pad(off4)} 00000 n \n${pad(off5)} 00000 n \n`;
-    const trailer = `trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${offset}\n%%EOF\n`;
-    
-    const xB = enc.encode(xref);
-    const tB = enc.encode(trailer);
-
-    const blob = new Blob([hB, o1B, o2B, o3B, o4HB, bytes, o4FB, o5B, xB, tB], { type: 'application/pdf' });
-    return blob;
-  }
-
-  // 7. FORM KANVAS ÇİZİCİ (OTOMATİK KELİME KAYDIRMA & SIĞDIRMA GARANTİSİ)
+  // 6. KANVAS & PDF ÇIKTISI (KESİN SATIR KAYDIRMA İLE TAŞMAYI ÖNLEME)
   async function generateFormCanvas() {
     const canvas = document.getElementById('exportCanvas');
     canvas.width = 1240;
     canvas.height = 1754;
     const ctx = canvas.getContext('2d');
-
-    // Beyaz A4 Zemin
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, 1240, 1754);
 
-    const logoImg = document.querySelector('.aydn-logo-img');
-    if (logoImg && logoImg.complete) {
-      ctx.drawImage(logoImg, 60, 50, 100, 100);
-    }
+    // Başlık & Logo
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(60, 50, 80, 80);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 24px -apple-system, sans-serif';
+    ctx.fillText('AYDN', 70, 98);
 
-    // Şirket Başlığı
     ctx.fillStyle = '#000000';
     ctx.font = 'bold 20px -apple-system, sans-serif';
-    ctx.fillText('AYDIN SARIKAYA MÜHENDİSLİK LİMİTED ŞİRKETİ', 180, 75);
-
+    ctx.fillText('AYDIN SARIKAYA MÜHENDİSLİK LİMİTED ŞİRKETİ', 160, 75);
     ctx.font = '14px -apple-system, sans-serif';
     ctx.fillStyle = '#4b5563';
-    ctx.fillText('Söğütözü Cad. Koç Kuleleri 2A / 13 Çankaya / ANKARA 06510', 180, 100);
-    ctx.fillText('İç Kapı No: 93 Gölbaşı / Ankara | Tel: 0 532 654 67 14', 180, 122);
-    ctx.fillText('Vergi No: 1151743334 (Maltepe V.D.) | Tic. Sicil: 497392 | Mersis: 01151743334000', 180, 144);
+    ctx.fillText('Söğütözü Cad. Koç Kuleleri 2A / 13 Çankaya / ANKARA 06510', 160, 98);
+    ctx.fillText('İç Kapı No: 93 Gölbaşı / Ankara | Tel: 0 532 654 67 14', 160, 118);
 
-    // Sağ Üst Belge Bilgileri
     ctx.textAlign = 'right';
     ctx.font = '900 20px -apple-system, sans-serif';
     ctx.fillStyle = '#000000';
     ctx.fillText('TEKNİK SERVİS VE DEVREYE ALMA FORMU', 1180, 75);
-
     ctx.font = 'bold 15px -apple-system, sans-serif';
-    ctx.fillText('Form No: ' + document.getElementById('formNo').value, 1180, 105);
-    ctx.fillText('No: ' + document.getElementById('kayitNo').value, 1180, 128);
-    ctx.fillText('Tarih: ' + document.getElementById('tarih').value, 1180, 151);
+    ctx.fillText('Form No: ' + document.getElementById('formNo').value, 1180, 102);
+    ctx.fillText('No: ' + document.getElementById('kayitNo').value, 1180, 124);
+    ctx.fillText('Tarih: ' + document.getElementById('tarih').value, 1180, 146);
     ctx.textAlign = 'left';
 
-    // Üst Çizgi
     ctx.lineWidth = 3;
     ctx.strokeStyle = '#000000';
     ctx.beginPath();
-    ctx.moveTo(60, 175);
-    ctx.lineTo(1180, 175);
+    ctx.moveTo(60, 160);
+    ctx.lineTo(1180, 160);
     ctx.stroke();
 
-    let curY = 215;
-
+    let curY = 185;
     function drawBox(title, height) {
       ctx.strokeStyle = '#9ca3af';
       ctx.lineWidth = 1.5;
@@ -1200,7 +946,7 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
       ctx.stroke();
     }
 
-    // 1. Müşteri / Proje Bilgileri
+    // 1. Müşteri Bilgileri
     drawBox('MÜŞTERİ / PROJE VE LOKASYON BİLGİLERİ', 135);
     ctx.font = 'bold 14px -apple-system, sans-serif';
     ctx.fillStyle = '#374151';
@@ -1211,9 +957,9 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
 
     ctx.font = '14px -apple-system, sans-serif';
     ctx.fillStyle = '#000000';
-    ctx.fillText(document.getElementById('musteriAdi').value, 215, curY + 54);
-    ctx.fillText(document.getElementById('ilgiliBirim').value, 215, curY + 78);
-    ctx.fillText(document.getElementById('musteriAdres').value, 215, curY + 102);
+    ctx.fillText(document.getElementById('musteriAdi').value || '-', 215, curY + 54);
+    ctx.fillText(document.getElementById('ilgiliBirim').value || '-', 215, curY + 78);
+    ctx.fillText(document.getElementById('musteriAdres').value || '-', 215, curY + 102);
 
     const mTel = document.getElementById('musteriTel').value.trim();
     const mMail = document.getElementById('musteriEmail').value.trim();
@@ -1222,65 +968,57 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
     ctx.fillText(contactStr, 215, curY + 126);
     curY += 150;
 
-    // 2. SİSTEM DETAYLARI (SADECE SİSTEM SEÇİMİ VE TARİH / SAAT - IP VE YAZILIM SİLİNDİ)
+    // 2. Sistem Detayları
     drawBox('SİSTEM DETAYLARI', 75);
     ctx.font = 'bold 14px -apple-system, sans-serif';
     ctx.fillStyle = '#374151';
     ctx.fillText('Sistem Grubu: ', 75, curY + 54);
     ctx.fillText('Servis Süresi: ', 650, curY + 54);
-
     ctx.font = 'bold 14.5px -apple-system, sans-serif';
     ctx.fillStyle = '#000000';
-    const chosenSystem = document.getElementById('cihazGrubuSelect').value;
-    ctx.fillText(chosenSystem, 185, curY + 54);
-
+    ctx.fillText(document.getElementById('cihazGrubuSelect').value, 185, curY + 54);
     ctx.font = '14px -apple-system, sans-serif';
     ctx.fillText(document.getElementById('baslangicTarihi').value + ' ' + document.getElementById('girisSaati').value + ' - ' + document.getElementById('bitisTarihi').value + ' ' + document.getElementById('cikisSaati').value, 760, curY + 54);
     curY += 90;
 
-    // 3. YAPILAN İŞLEMLER (OTOMATİK KELİME KAYDIRMA & KESİN SIĞDIRMA)
-    function getWrappedLines(textToWrap, maxWidth) {
-      const paras = textToWrap.split('\n');
-      const resultLines = [];
-      paras.forEach(para => {
-        if (!para.trim()) {
-          resultLines.push('');
-          return;
-        }
-        const words = para.split(' ');
-        let currentLine = words[0];
+    // 3. Yapılan İşlemler (Satır Kaydırma - Word Wrap)
+    function wrapTextLines(text, maxW) {
+      const paragraphs = text.split('\n');
+      const lines = [];
+      paragraphs.forEach(p => {
+        if (!p.trim()) { lines.push(''); return; }
+        const words = p.split(' ');
+        let cur = words[0];
         for (let i = 1; i < words.length; i++) {
-          const testLine = currentLine + ' ' + words[i];
-          if (ctx.measureText(testLine).width <= maxWidth) {
-            currentLine = testLine;
+          const test = cur + ' ' + words[i];
+          if (ctx.measureText(test).width <= maxW) {
+            cur = test;
           } else {
-            resultLines.push(currentLine);
-            currentLine = words[i];
+            lines.push(cur);
+            cur = words[i];
           }
         }
-        resultLines.push(currentLine);
+        lines.push(cur);
       });
-      return resultLines;
+      return lines;
     }
 
     ctx.font = '14px -apple-system, sans-serif';
+    const islemlerText = document.getElementById('islemler').value;
+    const wrappedIslemler = wrapTextLines(islemlerText, 1020);
+    const lineH = 22;
+    const boxH = Math.max(240, wrappedIslemler.length * lineH + 55);
+    drawBox('YAPILAN İŞLEMLER VE SERVİS RAPORU', boxH);
+
     ctx.fillStyle = '#000000';
-    const text = document.getElementById('islemler').value;
-    // max width 1030 px (kutu genişliği 1120px)
-    const wrappedLines = getWrappedLines(text, 1030);
-
-    const lineSpacing = 22;
-    const neededHeight = Math.max(250, wrappedLines.length * lineSpacing + 60);
-    drawBox('YAPILAN İŞLEMLER VE SERVİS RAPORU', neededHeight);
-
-    let textY = curY + 55;
-    wrappedLines.forEach(line => {
-      ctx.fillText(line, 75, textY);
-      textY += lineSpacing;
+    let tY = curY + 52;
+    wrappedIslemler.forEach(line => {
+      ctx.fillText(line, 75, tY);
+      tY += lineH;
     });
-    curY += neededHeight + 15;
+    curY += boxH + 15;
 
-    // 4. Malzeme & Parça Tablosu
+    // 4. Malzeme Tablosu
     drawBox('KULLANILAN MALZEME VE DEĞİŞEN PARÇALAR', 125);
     ctx.fillStyle = '#f3f4f6';
     ctx.fillRect(61, curY + 31, 1118, 25);
@@ -1290,11 +1028,10 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
     ctx.fillText('Miktar', 720, curY + 48);
     ctx.fillText('Seri No / Kod', 920, curY + 48);
 
-    const rows = document.querySelectorAll('#materialTable tbody tr');
     let mY = curY + 75;
-    rows.forEach(r => {
+    document.querySelectorAll('#materialTable tbody tr').forEach(r => {
       const inputs = r.querySelectorAll('input');
-      if (inputs.length >= 3) {
+      if (inputs.length >= 3 && inputs[0].value) {
         ctx.font = '13.5px -apple-system, sans-serif';
         ctx.fillText(inputs[0].value, 75, mY);
         ctx.fillText(inputs[1].value, 720, mY);
@@ -1319,21 +1056,7 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
     ctx.font = '13.5px -apple-system, sans-serif';
     ctx.fillStyle = '#000000';
     const katText = document.getElementById('katilimcilar').value.split('\n').filter(k => k.trim()).join('  |  ');
-    
-    // Katılımcıları da gerekirse satıra sar
-    const katWords = katText.split(' ');
-    let kLine = '';
-    let kY = curY + 84;
-    katWords.forEach(w => {
-      if (ctx.measureText(kLine + ' ' + w).width < 960) {
-        kLine += (kLine ? ' ' : '') + w;
-      } else {
-        ctx.fillText(kLine, 180, kY);
-        kY += 20;
-        kLine = w;
-      }
-    });
-    if (kLine) ctx.fillText(kLine, 180, kY);
+    ctx.fillText(katText.substring(0, 110), 180, curY + 84);
     curY += 140;
 
     // 6. İmza Kutuları
@@ -1346,29 +1069,60 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
     ctx.font = '14px -apple-system, sans-serif';
     ctx.fillText('Aydın SARIKAYA', 75, curY + 50);
     ctx.fillText('Aydın Sarıkaya Mühendislik Ltd. Şti.', 75, curY + 70);
-
     const s1 = document.getElementById('sign1');
-    if (s1) {
-      ctx.drawImage(s1, 75, curY + 85, signW - 30, 95);
-    }
+    if (s1) ctx.drawImage(s1, 75, curY + 85, signW - 30, 95);
 
     ctx.strokeRect(630, curY, signW, 195);
     ctx.font = 'bold 15px -apple-system, sans-serif';
     ctx.fillText('TESLİM ALAN / MÜŞTERİ YETKİLİSİ', 645, curY + 25);
     ctx.font = '14px -apple-system, sans-serif';
-    const alanAd = document.getElementById('teslimAlan').value || 'Müşteri Yetkilisi';
-    ctx.fillText(alanAd, 645, curY + 50);
-    ctx.fillText(document.getElementById('teslimAlanGorev').value, 645, curY + 70);
-
+    ctx.fillText(document.getElementById('teslimAlan').value || 'Müşteri Yetkilisi', 645, curY + 50);
+    ctx.fillText(document.getElementById('teslimAlanGorev').value || '', 645, curY + 70);
     const s2 = document.getElementById('sign2');
-    if (s2) {
-      ctx.drawImage(s2, 645, curY + 85, signW - 30, 95);
-    }
+    if (s2) ctx.drawImage(s2, 645, curY + 85, signW - 30, 95);
 
     return canvas.toDataURL('image/jpeg', 0.92);
   }
 
-  // 8. ARŞİV VE GOOGLE DRIVE PDF YÜKLEME
+  function buildA4PDF(jpegDataUrl) {
+    const base64Data = jpegDataUrl.split(',')[1];
+    const binaryStr = atob(base64Data);
+    const bytes = new Uint8Array(binaryStr.length);
+    for (let i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i);
+
+    const header = "%PDF-1.4\n";
+    const obj1 = "1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n";
+    const obj2 = "2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n";
+    const obj3 = "3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /XObject << /Im1 4 0 R >> >> /Contents 5 0 R >>\nendobj\n";
+    const obj4Header = `4 0 obj\n<< /Type /XObject /Subtype /Image /Width 1240 /Height 1754 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${bytes.length} >>\nstream\n`;
+    const obj4Footer = "\nendstream\nendobj\n";
+    const streamContent = "q 595.28 0 0 841.89 0 0 cm /Im1 Do Q\n";
+    const obj5 = `5 0 obj\n<< /Length ${streamContent.length} >>\nstream\n${streamContent}endstream\nendobj\n`;
+
+    const enc = new TextEncoder();
+    const hB = enc.encode(header);
+    const o1B = enc.encode(obj1);
+    const o2B = enc.encode(obj2);
+    const o3B = enc.encode(obj3);
+    const o4HB = enc.encode(obj4Header);
+    const o4FB = enc.encode(obj4Footer);
+    const o5B = enc.encode(obj5);
+
+    let offset = hB.length;
+    const off1 = offset; offset += o1B.length;
+    const off2 = offset; offset += o2B.length;
+    const off3 = offset; offset += o3B.length;
+    const off4 = offset; offset += o4HB.length + bytes.length + o4FB.length;
+    const off5 = offset; offset += o5B.length;
+
+    const pad = (n) => String(n).padStart(10, '0');
+    const xref = `xref\n0 6\n0000000000 65535 f \n${pad(off1)} 00000 n \n${pad(off2)} 00000 n \n${pad(off3)} 00000 n \n${pad(off4)} 00000 n \n${pad(off5)} 00000 n \n`;
+    const trailer = `trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${offset}\n%%EOF\n`;
+
+    return new Blob([hB, o1B, o2B, o3B, o4HB, bytes, o4FB, o5B, enc.encode(xref), enc.encode(trailer)], { type: 'application/pdf' });
+  }
+
+  // 7. ARŞİV VE GOOGLE DRIVE
   const ARCHIVE_KEY = 'aydn_service_forms_archive_v1';
   const CLOUD_URL_KEY = 'aydn_google_drive_pdf_webhook';
 
@@ -1376,18 +1130,12 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
     try {
       const data = localStorage.getItem(ARCHIVE_KEY);
       return data ? JSON.parse(data) : [];
-    } catch(e) {
-      return [];
-    }
+    } catch(e) { return []; }
   }
 
   function saveArchiveRecords(records) {
-    try {
-      localStorage.setItem(ARCHIVE_KEY, JSON.stringify(records));
-      updateArchiveBadge();
-    } catch(e) {
-      alert('Depolama alanı yetersiz olabilir.');
-    }
+    localStorage.setItem(ARCHIVE_KEY, JSON.stringify(records));
+    updateArchiveBadge();
   }
 
   function updateArchiveBadge() {
@@ -1410,10 +1158,7 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
   function blobToBase64(blob) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        const b64 = reader.result.split(',')[1];
-        resolve(b64);
-      };
+      reader.onloadend = () => resolve(reader.result.split(',')[1]);
       reader.onerror = reject;
       reader.readAsDataURL(blob);
     });
@@ -1459,19 +1204,12 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
     document.querySelectorAll('#materialTable tbody tr').forEach(r => {
       const inputs = r.querySelectorAll('input');
       if (inputs.length >= 3) {
-        rows.push({
-          material: inputs[0].value,
-          qty: inputs[1].value,
-          sn: inputs[2].value
-        });
+        rows.push({ material: inputs[0].value, qty: inputs[1].value, sn: inputs[2].value });
       }
     });
 
     const types = [];
-    document.querySelectorAll('#serviceTypeGroup input[type="checkbox"]:checked').forEach(c => {
-      types.push(c.value);
-    });
-
+    document.querySelectorAll('#serviceTypeGroup input[type="checkbox"]:checked').forEach(c => types.push(c.value));
     const s1 = document.getElementById('sign1');
     const s2 = document.getElementById('sign2');
 
@@ -1505,7 +1243,7 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
     };
   }
 
-  // Drive & Arşive Kaydet Butonu
+  // Drive & Arşive Kaydet
   document.getElementById('btnSaveRecord').addEventListener('click', async function() {
     const current = getCurrentFormData();
     if (!current.formNo && !current.musteriAdi) {
@@ -1533,9 +1271,9 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
       const uploaded = await uploadPDFToGoogleDrive(pdfBlob, fileName, current);
 
       if (uploaded) {
-        let msg = '✓ ' + fileName + ' Google Drive\'a başarıyla yüklendi!';
+        let msg = '✓ ' + fileName + ' Google Drive\'a yüklendi!';
         if (current.musteriEmail && current.musteriEmail.indexOf('@') !== -1) {
-          msg += '<br>✉️ PDF (' + current.musteriEmail + ') adresine iletildi.';
+          msg += '<br>✉️ PDF (' + current.musteriEmail + ') adresine e-posta iletildi.';
         }
         showToast(msg, 4000);
       } else {
@@ -1546,60 +1284,22 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
     }
   });
 
-  // Bulut Modal Fonksiyonları
+  // Modal ve Menü Kontrolleri
   function openCloudModal() {
-    const saved = localStorage.getItem(CLOUD_URL_KEY) || '';
-    document.getElementById('webhookInput').value = saved;
+    document.getElementById('webhookInput').value = localStorage.getItem(CLOUD_URL_KEY) || '';
     document.getElementById('cloudModal').style.display = 'flex';
   }
-  function closeCloudModal() {
-    document.getElementById('cloudModal').style.display = 'none';
-  }
+  function closeCloudModal() { document.getElementById('cloudModal').style.display = 'none'; }
   function saveCloudSettings() {
     const url = document.getElementById('webhookInput').value.trim();
     localStorage.setItem(CLOUD_URL_KEY, url);
     updateArchiveBadge();
     closeCloudModal();
-    showToast(url ? '✓ Google Drive bağlantısı aktif edildi!' : 'Drive bağlantısı kapatıldı.');
+    showToast(url ? '✓ Drive bağlantısı kaydedildi!' : 'Drive bağlantısı kapatıldı.');
   }
 
-  async function testCloudPDFUpload() {
-    const url = document.getElementById('webhookInput').value.trim();
-    if (!url || !url.startsWith('http')) {
-      alert('Lütfen geçerli bir Google Apps Script URL giriniz.');
-      return;
-    }
-    showToast('⏳ Test PDF\'i Google Drive\'a gönderiliyor...', 3000);
-    try {
-      const jpegUrl = await generateFormCanvas();
-      const pdfBlob = buildA4PDF(jpegUrl);
-      const b64Pdf = await blobToBase64(pdfBlob);
-      const testName = generateSmartFileName();
-      await fetch(url, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          pdfBase64: b64Pdf,
-          fileName: testName,
-          formNo: 'TEST_PDF',
-          musteriAdi: 'Google Drive Test'
-        })
-      });
-      alert('✓ ' + testName + ' Google Drive\'a gönderildi! Google Drive\'ınızda "Teknik Servis Formlari (AYDN)" klasörünü kontrol ediniz.');
-    } catch(e) {
-      alert('Yükleme hatası: ' + e.message);
-    }
-  }
-
-  // Arşiv Listesi Modalı
-  function openArchiveModal() {
-    renderArchiveList();
-    document.getElementById('archiveModal').style.display = 'flex';
-  }
-  function closeArchiveModal() {
-    document.getElementById('archiveModal').style.display = 'none';
-  }
+  function openArchiveModal() { renderArchiveList(); document.getElementById('archiveModal').style.display = 'flex'; }
+  function closeArchiveModal() { document.getElementById('archiveModal').style.display = 'none'; }
 
   function renderArchiveList() {
     const recs = getArchiveRecords();
@@ -1607,25 +1307,20 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
     const emptyMsg = document.getElementById('emptyArchiveMsg');
     const table = document.getElementById('archiveTable');
     tbody.innerHTML = '';
-
     if (recs.length === 0) {
-      emptyMsg.style.display = 'block';
-      table.style.display = 'none';
-      return;
+      emptyMsg.style.display = 'block'; table.style.display = 'none'; return;
     }
-    emptyMsg.style.display = 'none';
-    table.style.display = 'table';
-
+    emptyMsg.style.display = 'none'; table.style.display = 'table';
     recs.forEach((r) => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td><strong>${r.tarih || '-'}</strong><br><small style="color:#6b7280">${r.savedAt || ''}</small></td>
         <td><code>${r.kayitNo || '-'}</code><br><small>${r.formNo || '-'}</small></td>
-        <td><strong>${r.musteriAdi || '-'}</strong><br><small>${r.musteriAdres ? r.musteriAdres.substring(0,40)+'...' : ''}</small></td>
+        <td><strong>${r.musteriAdi || '-'}</strong><br><small>${r.musteriAdres ? r.musteriAdres.substring(0,35)+'...' : ''}</small></td>
         <td><small>${r.cihazGrubu || '-'}</small></td>
         <td style="text-align: center; white-space: nowrap;">
           <button type="button" class="row-action-btn" onclick="loadRecordIntoForm('${r.id}')">📂 Aç</button>
-          <button type="button" class="row-action-btn row-del-btn" onclick="deleteRecord('${r.id}')">Sil</button>
+          <button type="button" class="row-action-btn" style="color:red;" onclick="deleteRecord('${r.id}')">Sil</button>
         </td>
       `;
       tbody.appendChild(tr);
@@ -1636,7 +1331,6 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
     const recs = getArchiveRecords();
     const r = recs.find(item => item.id === id);
     if (!r) return;
-
     if (!confirm(r.musteriAdi + ' servis formunu ekrana yüklemek istiyor musunuz?')) return;
 
     document.getElementById('formNo').value = r.formNo || '';
@@ -1652,11 +1346,8 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
     document.getElementById('musteriTel').value = r.musteriTel || '';
     document.getElementById('musteriEmail').value = r.musteriEmail || '';
 
-    // Sistem seçeneğini yenile ve seç
     refreshSystemSelect(r.cihazGrubu);
-
-    // Servis türleri checkboxlarını güncelle
-    if (r.serviceTypes && Array.isArray(r.serviceTypes)) {
+    if (r.serviceTypes) {
       document.querySelectorAll('#serviceTypeGroup input[type="checkbox"]').forEach(cb => {
         cb.checked = r.serviceTypes.includes(cb.value);
       });
@@ -1686,9 +1377,7 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
         c1.getContext('2d').drawImage(img1, 0, 0, c1.width / (window.devicePixelRatio || 1), c1.height / (window.devicePixelRatio || 1));
       };
       img1.src = r.sign1Data;
-    } else {
-      clearCanvas('sign1');
-    }
+    } else clearCanvas('sign1');
 
     if (r.sign2Data) {
       const img2 = new Image();
@@ -1698,56 +1387,46 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
         c2.getContext('2d').drawImage(img2, 0, 0, c2.width / (window.devicePixelRatio || 1), c2.height / (window.devicePixelRatio || 1));
       };
       img2.src = r.sign2Data;
-    } else {
-      clearCanvas('sign2');
-    }
+    } else clearCanvas('sign2');
 
     closeArchiveModal();
-    showToast('✓ Form başarıyla yüklendi.');
+    showToast('✓ Form yüklendi.');
   };
 
   window.deleteRecord = function(id) {
     if (!confirm('Bu servis kaydını arşivden silmek istediğinize emin misiniz?')) return;
-    let recs = getArchiveRecords();
-    recs = recs.filter(r => r.id !== id);
+    let recs = getArchiveRecords().filter(r => r.id !== id);
     saveArchiveRecords(recs);
     renderArchiveList();
     showToast('Kayıt silindi.');
   };
 
   window.clearAllArchive = function() {
-    if (confirm('DİKKAT: Arşivdeki TÜM kayıtlar kalıcı olarak silinecektir. Onaylıyor musunuz?')) {
+    if (confirm('TÜM kayıtlar kalıcı olarak silinecektir. Onaylıyor musunuz?')) {
       localStorage.removeItem(ARCHIVE_KEY);
       renderArchiveList();
       updateArchiveBadge();
-      showToast('Arşiv tamamen temizlendi.');
+      showToast('Arşiv temizlendi.');
     }
   };
 
   window.exportArchiveCSV = function() {
     const recs = getArchiveRecords();
-    if (recs.length === 0) {
-      alert('Dışa aktarılacak kayıt bulunmuyor.');
-      return;
-    }
-    let csv = '\uFEFF';
-    csv += 'Kayıt Tarihi;Form No;No;Tarih;Müşteri / Proje;Birim;Adres;Telefon;E-Posta;Sistem Detayı;Durum;Teslim Eden;Teslim Alan\n';
+    if (recs.length === 0) { alert('Dışa aktarılacak kayıt yok.'); return; }
+    let csv = '\uFEFFKayıt Tarihi;Form No;No;Tarih;Müşteri / Proje;Birim;Adres;Telefon;E-Posta;Sistem;Durum;Teslim Eden;Teslim Alan\n';
     recs.forEach(r => {
-      const clean = (t) => (t || '').replace(/;/g, ' ').replace(/\n/g, ' ');
-      csv += `"${clean(r.savedAt)}";"${clean(r.formNo)}";"${clean(r.kayitNo)}";"${clean(r.tarih)}";"${clean(r.musteriAdi)}";"${clean(r.ilgiliBirim)}";"${clean(r.musteriAdres)}";"${clean(r.musteriTel)}";"${clean(r.musteriEmail)}";"${clean(r.cihazGrubu)}";"${clean(r.servisSonDurum)}";"${clean(r.teslimEden)}";"${clean(r.teslimAlan)}"\n`;
+      const c = (t) => (t || '').replace(/;/g, ' ').replace(/\n/g, ' ');
+      csv += `"${c(r.savedAt)}";"${c(r.formNo)}";"${c(r.kayitNo)}";"${c(r.tarih)}";"${c(r.musteriAdi)}";"${c(r.ilgiliBirim)}";"${c(r.musteriAdres)}";"${c(r.musteriTel)}";"${c(r.musteriEmail)}";"${c(r.cihazGrubu)}";"${c(r.servisSonDurum)}";"${c(r.teslimEden)}";"${c(r.teslimAlan)}"\n`;
     });
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
-    a.download = `Aydin_Muhendislik_Servis_Arsivi_${new Date().toISOString().slice(0,10)}.csv`;
-    document.body.appendChild(a);
+    a.href = URL.createObjectURL(blob);
+    a.download = `Servis_Arsivi_${new Date().toISOString().slice(0,10)}.csv`;
     a.click();
-    document.body.removeChild(a);
-    showToast('✓ Arşiv Excel/CSV olarak indirildi.');
+    showToast('✓ Arşiv CSV olarak indirildi.');
   };
 
-  // 8. WHATSAPP İLE PDF PAYLAŞMA BUTONU
+  // WhatsApp Paylaşım
   document.getElementById('btnShareWA').addEventListener('click', async function() {
     const current = getCurrentFormData();
     const recs = getArchiveRecords();
@@ -1756,43 +1435,30 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
     saveArchiveRecords(recs);
 
     const fileName = generateSmartFileName();
-    showToast('⏳ PDF (' + fileName + ') hazırlanıyor ve WhatsApp başlatılıyor...', 2500);
-    
+    showToast('⏳ PDF (' + fileName + ') hazırlanıyor...', 2500);
+
     try {
       const jpegUrl = await generateFormCanvas();
       const pdfBlob = buildA4PDF(jpegUrl);
       const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
-
       uploadPDFToGoogleDrive(pdfBlob, fileName, current);
 
       if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-        await navigator.share({
-          files: [pdfFile],
-          title: fileName,
-          text: `AYDIN SARIKAYA MÜHENDİSLİK - ${fileName}`
-        });
+        await navigator.share({ files: [pdfFile], title: fileName, text: `AYDIN SARIKAYA MÜHENDİSLİK - ${fileName}` });
         showToast('✓ PDF paylaşıldı.');
       } else {
-        const url = URL.createObjectURL(pdfBlob);
         const a = document.createElement('a');
-        a.href = url;
+        a.href = URL.createObjectURL(pdfBlob);
         a.download = fileName;
-        document.body.appendChild(a);
         a.click();
-        document.body.removeChild(a);
-
         setTimeout(() => {
-          const msg = encodeURIComponent(`*AYDIN SARIKAYA MÜHENDİSLİK*\n${fileName} cihazınıza indirildi. Lütfen sohbet ekranından PDF dosyasını ekleyerek gönderiniz.`);
-          window.location.href = `https://api.whatsapp.com/send?text=${msg}`;
+          window.location.href = `https://api.whatsapp.com/send?text=${encodeURIComponent('*AYDIN SARIKAYA MÜHENDİSLİK*\\n' + fileName + ' cihazınıza indirildi.')}`;
         }, 800);
       }
-    } catch (err) {
-      window.focus();
-      window.print();
-    }
+    } catch (err) { window.focus(); window.print(); }
   });
 
-  // 9. PDF İNDİR / YAZDIR BUTONU
+  // PDF İndir
   document.getElementById('btnExportPDF').addEventListener('click', async function() {
     const current = getCurrentFormData();
     const recs = getArchiveRecords();
@@ -1801,74 +1467,33 @@ Sistem G Blok inşaatı olmadığı için diğer tüm bloklar tam, eksiz, çalı
     saveArchiveRecords(recs);
 
     const fileName = generateSmartFileName();
-    showToast('⏳ PDF (' + fileName + ') oluşturulup Drive\'a yükleniyor...', 2000);
+    showToast('⏳ PDF (' + fileName + ') oluşturuluyor...', 2000);
     try {
       const jpegUrl = await generateFormCanvas();
       const pdfBlob = buildA4PDF(jpegUrl);
-
       uploadPDFToGoogleDrive(pdfBlob, fileName, current);
-
-      const url = URL.createObjectURL(pdfBlob);
       const a = document.createElement('a');
-      a.href = url;
+      a.href = URL.createObjectURL(pdfBlob);
       a.download = fileName;
-      document.body.appendChild(a);
       a.click();
-      document.body.removeChild(a);
-      showToast('✓ ' + fileName + ' indirildi ve Drive\'a yüklendi.');
-    } catch(e) {
-      window.focus();
-      window.print();
-    }
+      showToast('✓ ' + fileName + ' indirildi.');
+    } catch(e) { window.focus(); window.print(); }
   });
 
-  // 10. SIFIRLAMA
-  document.getElementById('btnReset').addEventListener('click', function() {
-    if (confirm('Tüm formu temizleyip yeni bir servis formu açmak istediğinize emin misiniz?')) {
-      location.reload();
-    }
-  });
-
+  // Sayfa İlk Yükleme Kontrolleri
   window.addEventListener('DOMContentLoaded', () => {
     refreshSystemSelect();
     updateArchiveBadge();
-  });
+    const today = new Date().toISOString().slice(0,10);
+    if (!document.getElementById('tarih').value) document.getElementById('tarih').value = today;
+    if (!document.getElementById('baslangicTarihi').value) document.getElementById('baslangicTarihi').value = today;
+    if (!document.getElementById('bitisTarihi').value) document.getElementById('bitisTarihi').value = today;
 
-  // GİRİŞ DOĞRULAMA (GITHUB PAGES İÇİN GÜVENLİK GİRİŞİ)
-  // Varsayılan giriş bilgileri (İstediğiniz zaman değiştirebilirsiniz)
-  const AUTH_USER = "aydin";
-  const AUTH_PASS = "1234";
-
-  function checkLogin() {
-    const u = document.getElementById('loginUsername').value.trim();
-    const p = document.getElementById('loginPassword').value.trim();
-    const alertBox = document.getElementById('loginAlert');
-
-    if (u === AUTH_USER && p === AUTH_PASS) {
-      sessionStorage.setItem('aydn_auth_logged_in', 'true');
-      document.getElementById('loginOverlay').style.display = 'none';
-      alertBox.style.display = 'none';
-      showToast("✓ Giriş başarılı. Hoş geldiniz!");
-    } else {
-      alertBox.style.display = 'block';
-    }
-  }
-
-  function logout() {
-    if (confirm("Oturumu kapatmak istediğinize emin misiniz?")) {
-      sessionStorage.removeItem('aydn_auth_logged_in');
-      document.getElementById('loginOverlay').style.display = 'flex';
-      document.getElementById('loginUsername').value = '';
-      document.getElementById('loginPassword').value = '';
-      document.getElementById('loginAlert').style.display = 'none';
-    }
-  }
-
-  // Sayfa yüklendiğinde oturum kontrolü
-  window.addEventListener('DOMContentLoaded', () => {
+    // Oturum kontrolü
     if (sessionStorage.getItem('aydn_auth_logged_in') === 'true') {
       const overlay = document.getElementById('loginOverlay');
       if (overlay) overlay.style.display = 'none';
+      setupUserUI();
     }
   });
 </script>
