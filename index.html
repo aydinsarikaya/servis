@@ -1112,6 +1112,18 @@ function doPost(e) {
     }
   }
 
+    // TARİH FORMATLAMA YARDIMCISI (GG.AA.YYYY)
+  function formatTRDate(dStr) {
+    if (!dStr) return '-';
+    if (typeof dStr === 'string' && dStr.indexOf('-') !== -1) {
+      const parts = dStr.split('T')[0].split('-');
+      if (parts.length === 3 && parts[0].length === 4) {
+        return parts[2] + '.' + parts[1] + '.' + parts[0];
+      }
+    }
+    return dStr;
+  }
+
   function generateSmartFileName() {
     const musteri = document.getElementById('musteriAdi').value.trim() || 'Servis_Projesi';
     const no = document.getElementById('kayitNo').value.trim() || 'No';
@@ -1132,7 +1144,7 @@ function doPost(e) {
 
     const cleanMusteri = cleanStr(musteri).substring(0, 35);
     const cleanNo = cleanStr(no);
-    const cleanTarih = cleanStr(tarih);
+    const cleanTarih = cleanStr(formatTRDate(tarih));
 
     return `${cleanMusteri}_${cleanNo}_${cleanTarih}.pdf`;
   }
@@ -1383,7 +1395,7 @@ function doPost(e) {
     ctx.font = '14px -apple-system, sans-serif';
     ctx.fillStyle = '#4b5563';
     ctx.fillText('Form No: ' + (document.getElementById('formNo').value || '-') + ' (Sayfa 2 / 2)', 1180, 105);
-    ctx.fillText('Tarih: ' + (document.getElementById('tarih').value || '-'), 1180, 128);
+    ctx.fillText('Tarih: ' + (formatTRDate(document.getElementById('tarih').value) || '-'), 1180, 128);
     ctx.textAlign = 'left';
 
     ctx.lineWidth = 2;
@@ -1505,7 +1517,7 @@ function doPost(e) {
     ctx.font = 'bold 15px -apple-system, sans-serif';
     ctx.fillText('Form No: ' + document.getElementById('formNo').value, 1180, 105);
     ctx.fillText('No: ' + document.getElementById('kayitNo').value, 1180, 128);
-    ctx.fillText('Tarih: ' + document.getElementById('tarih').value, 1180, 151);
+    ctx.fillText('Tarih: ' + formatTRDate(document.getElementById('tarih').value), 1180, 151);
     ctx.textAlign = 'left';
 
     // Üst Çizgi
@@ -1567,7 +1579,7 @@ function doPost(e) {
     ctx.fillText(chosenSystem, 185, curY + 54);
 
     ctx.font = '14px -apple-system, sans-serif';
-    ctx.fillText(document.getElementById('baslangicTarihi').value + ' ' + document.getElementById('girisSaati').value + ' - ' + document.getElementById('bitisTarihi').value + ' ' + document.getElementById('cikisSaati').value, 760, curY + 54);
+    ctx.fillText(formatTRDate(document.getElementById('baslangicTarihi').value) + ' ' + document.getElementById('girisSaati').value + ' - ' + formatTRDate(document.getElementById('bitisTarihi').value) + ' ' + document.getElementById('cikisSaati').value, 760, curY + 54);
     curY += 90;
 
     // 3. YAPILAN İŞLEMLER (OTOMATİK KELİME KAYDIRMA & KESİN SIĞDIRMA)
@@ -1960,7 +1972,7 @@ function doPost(e) {
     recs.forEach((r) => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td><strong>${r.tarih || '-'}</strong><br><small style="color:#6b7280">${r.savedAt || ''}</small></td>
+        <td><strong>${formatTRDate(r.tarih)}</strong><br><small style="color:#6b7280">${r.savedAt || ''}</small></td>
         <td><code>${r.kayitNo || '-'}</code><br><small>${r.formNo || '-'}</small></td>
         <td><strong>${r.musteriAdi || '-'}</strong><br><small>${r.musteriAdres ? r.musteriAdres.substring(0,40)+'...' : ''}</small></td>
         <td><small>${r.cihazGrubu || '-'}</small></td>
