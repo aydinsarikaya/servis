@@ -1181,7 +1181,7 @@ function doPost(e) {
     }
   }
 
-  // 6. SAF JAVASCRIPT İLE RESMİ STANDART A4 PDF OLUŞTURMA
+  // 6. RESMİ STANDART A4 PDF MOTORU (TEK VE ÇOK SAYFALI)
   function buildA4PDF(jpegDataUrl) {
     const base64Data = jpegDataUrl.split(',')[1];
     const binaryStr = atob(base64Data);
@@ -1190,19 +1190,21 @@ function doPost(e) {
     for (let i = 0; i < len; i++) {
       bytes[i] = binaryStr.charCodeAt(i);
     }
+    return buildSinglePageA4PDF(bytes);
+  }
 
+  function buildSinglePageA4PDF(arr) {
+    const enc = new TextEncoder();
+    const len = arr.length;
     const header = "%PDF-1.4\n";
     const obj1 = "1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n";
     const obj2 = "2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n";
     const obj3 = "3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /XObject << /Im1 4 0 R >> >> /Contents 5 0 R >>\nendobj\n";
-    
     const obj4Header = `4 0 obj\n<< /Type /XObject /Subtype /Image /Width 1240 /Height 1754 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${len} >>\nstream\n`;
     const obj4Footer = "\nendstream\nendobj\n";
-    
     const streamContent = "q 595.28 0 0 841.89 0 0 cm /Im1 Do Q\n";
     const obj5 = `5 0 obj\n<< /Length ${streamContent.length} >>\nstream\n${streamContent}endstream\nendobj\n`;
 
-    const enc = new TextEncoder();
     const hB = enc.encode(header);
     const o1B = enc.encode(obj1);
     const o2B = enc.encode(obj2);
@@ -1215,18 +1217,167 @@ function doPost(e) {
     const off1 = offset; offset += o1B.length;
     const off2 = offset; offset += o2B.length;
     const off3 = offset; offset += o3B.length;
-    const off4 = offset; offset += o4HB.length + bytes.length + o4FB.length;
+    const off4 = offset; offset += o4HB.length + arr.length + o4FB.length;
     const off5 = offset; offset += o5B.length;
 
     const pad = (n) => String(n).padStart(10, '0');
     const xref = `xref\n0 6\n0000000000 65535 f \n${pad(off1)} 00000 n \n${pad(off2)} 00000 n \n${pad(off3)} 00000 n \n${pad(off4)} 00000 n \n${pad(off5)} 00000 n \n`;
     const trailer = `trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${offset}\n%%EOF\n`;
-    
     const xB = enc.encode(xref);
     const tB = enc.encode(trailer);
 
-    const blob = new Blob([hB, o1B, o2B, o3B, o4HB, bytes, o4FB, o5B, xB, tB], { type: 'application/pdf' });
-    return blob;
+    return new Blob([hB, o1B, o2B, o3B, o4HB, arr, o4FB, o5B, xB, tB], { type: 'application/pdf' });
+  }
+
+  function buildMultiPageA4PDF(pageBlobs) {
+    if (!pageBlobs || pageBlobs.length === 0) return null;
+    if (pageBlobs.length === 1) {
+      return buildSinglePageA4PDF(pageBlobs[0]);
+    }
+
+    const enc = new TextEncoder();
+    const pad = (n) => String(n).padStart(10, '0');
+
+    const header = "%PDF-1.4\n";
+    const obj1 = "1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n";
+    const obj2 = "2 0 obj\n<< /Type /Pages /Kids [3 0 R 4 0 R] /Count 2 >>\nendobj\n";
+    const obj3 = "3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /XObject << /Im1 5 0 R >> >> /Contents 7 0 R >>\nendobj\n";
+    const obj4 = "4 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /XObject << /Im2 6 0 R >> >> /Contents 8 0 R >>\nendobj\n";
+
+    const obj5Head = `5 0 obj\n<< /Type /XObject /Subtype /Image /Width 1240 /Height 1754 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${pageBlobs[0].length} >>\nstream\n`;
+    const obj5Foot = "\nendstream\nendobj\n";
+
+    const obj6Head = `6 0 obj\n<< /Type /XObject /Subtype /Image /Width 1240 /Height 1754 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${pageBlobs[1].length} >>\nstream\n`;
+    const obj6Foot = "\nendstream\nendobj\n";
+
+    const s1 = "q 595.28 0 0 841.89 0 0 cm /Im1 Do Q\n";
+    const obj7 = `7 0 obj\n<< /Length ${s1.length} >>\nstream\n${s1}endstream\nendobj\n`;
+
+    const s2 = "q 595.28 0 0 841.89 0 0 cm /Im2 Do Q\n";
+    const obj8 = `8 0 obj\n<< /Length ${s2.length} >>\nstream\n${s2}endstream\nendobj\n`;
+
+    const hB = enc.encode(header);
+    const o1B = enc.encode(obj1);
+    const o2B = enc.encode(obj2);
+    const o3B = enc.encode(obj3);
+    const o4B = enc.encode(obj4);
+    const o5HB = enc.encode(obj5Head);
+    const o5FB = enc.encode(obj5Foot);
+    const o6HB = enc.encode(obj6Head);
+    const o6FB = enc.encode(obj6Foot);
+    const o7B = enc.encode(obj7);
+    const o8B = enc.encode(obj8);
+
+    let offset = hB.length;
+    const off1 = offset; offset += o1B.length;
+    const off2 = offset; offset += o2B.length;
+    const off3 = offset; offset += o3B.length;
+    const off4 = offset; offset += o4B.length;
+    const off5 = offset; offset += o5HB.length + pageBlobs[0].length + o5FB.length;
+    const off6 = offset; offset += o6HB.length + pageBlobs[1].length + o6FB.length;
+    const off7 = offset; offset += o7B.length;
+    const off8 = offset; offset += o8B.length;
+
+    const xref = `xref\n0 9\n0000000000 65535 f \n${pad(off1)} 00000 n \n${pad(off2)} 00000 n \n${pad(off3)} 00000 n \n${pad(off4)} 00000 n \n${pad(off5)} 00000 n \n${pad(off6)} 00000 n \n${pad(off7)} 00000 n \n${pad(off8)} 00000 n \n`;
+    const trailer = `trailer\n<< /Size 9 /Root 1 0 R >>\nstartxref\n${offset}\n%%EOF\n`;
+    const xB = enc.encode(xref);
+    const tB = enc.encode(trailer);
+
+    return new Blob([hB, o1B, o2B, o3B, o4B, o5HB, pageBlobs[0], o5FB, o6HB, pageBlobs[1], o6FB, o7B, o8B, xB, tB], { type: 'application/pdf' });
+  }
+
+  // 2. SAYFA: SAHA FOTOĞRAFLARI KANVASI
+  async function generatePhotoPageCanvas(photos) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1240;
+    canvas.height = 1754;
+    const ctx = canvas.getContext('2d');
+
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, 1240, 1754);
+
+    // Antet
+    const logoImg = document.querySelector('.aydn-logo-img');
+    if (logoImg && logoImg.complete) ctx.drawImage(logoImg, 60, 50, 100, 100);
+
+    ctx.fillStyle = '#000000';
+    ctx.font = 'bold 20px -apple-system, sans-serif';
+    ctx.fillText('AYDIN SARIKAYA MÜHENDİSLİK LİMİTED ŞİRKETİ', 180, 75);
+
+    ctx.font = '14px -apple-system, sans-serif';
+    ctx.fillStyle = '#4b5563';
+    ctx.fillText('Söğütözü Cad. Koç Kuleleri 2A / 13 Çankaya / ANKARA 06510', 180, 100);
+    ctx.fillText('İç Kapı No: 93 Gölbaşı / Ankara | Tel: 0 532 654 67 14', 180, 122);
+    ctx.fillText('Vergi No: 1151743334 (Maltepe V.D.) | Tic. Sicil: 497392 | Mersis: 01151743334000', 180, 144);
+
+    ctx.textAlign = 'right';
+    ctx.font = '900 18px -apple-system, sans-serif';
+    ctx.fillStyle = '#000000';
+    ctx.fillText('EK: SAHA FOTOĞRAFLARI VE TESPİTLER', 1180, 75);
+    ctx.font = '14px -apple-system, sans-serif';
+    ctx.fillStyle = '#4b5563';
+    ctx.fillText('Form No: ' + (document.getElementById('formNo').value || '-') + ' (Sayfa 2 / 2)', 1180, 105);
+    ctx.fillText('Tarih: ' + (document.getElementById('tarih').value || '-'), 1180, 128);
+    ctx.textAlign = 'left';
+
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#000000';
+    ctx.beginPath();
+    ctx.moveTo(60, 175);
+    ctx.lineTo(1180, 175);
+    ctx.stroke();
+
+    // Fotoğrafları Yükle ve Izgaraya Yerleştir
+    const loadedImgs = await Promise.all(photos.map(src => {
+      return new Promise(res => {
+        const img = new Image();
+        img.onload = () => res(img);
+        img.onerror = () => res(null);
+        img.src = src;
+      });
+    }));
+
+    const validImgs = loadedImgs.filter(i => i !== null);
+    const count = validImgs.length;
+
+    if (count <= 2) {
+      // 1 veya 2 Büyük Görsel
+      validImgs.forEach((img, idx) => {
+        const y = 230 + idx * 700;
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(90, y, 1060, 640);
+        ctx.drawImage(img, 100, y + 10, 1040, 620);
+        ctx.fillStyle = '#111827';
+        ctx.font = 'bold 15px -apple-system, sans-serif';
+        ctx.fillText(`Fotoğraf ${idx + 1} - Saha Tespit Görseli`, 100, y - 10);
+      });
+    } else {
+      // 2x2 veya 2x3 Izgara
+      const w = 530, h = 420;
+      validImgs.slice(0, 6).forEach((img, idx) => {
+        const col = idx % 2;
+        const row = Math.floor(idx / 2);
+        const x = 70 + col * 570;
+        const y = 230 + row * 470;
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(x, y, w, h);
+        ctx.drawImage(img, x + 5, y + 5, w - 10, h - 10);
+        ctx.fillStyle = '#111827';
+        ctx.font = 'bold 13px -apple-system, sans-serif';
+        ctx.fillText(`Fotoğraf ${idx + 1}`, x + 5, y - 8);
+      });
+    }
+
+    // Dipnot
+    ctx.font = '12px -apple-system, sans-serif';
+    ctx.fillStyle = '#6b7280';
+    ctx.textAlign = 'center';
+    ctx.fillText('Aydın Sarıkaya Mühendislik Limited Şirketi • Teknik Servis ve Devreye Alma Raporu Eki • info@aydn.com.tr', 620, 1720);
+    ctx.textAlign = 'left';
+
+    return canvas.toDataURL('image/jpeg', 0.90);
   }
 
   // 7. FORM KANVAS ÇİZİCİ (OTOMATİK KELİME KAYDIRMA & SIĞDIRMA GARANTİSİ)
