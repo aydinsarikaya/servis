@@ -794,11 +794,11 @@ function doPost(e) {
       <div class="doc-title">TEKNİK SERVİS VE DEVREYE ALMA FORMU</div>
       <div class="meta-row">
         <span>Form No:</span>
-        <input type="text" id="formNo" placeholder="Örn: 2026_TS_01">
+        <input type="text" id="formNo" value="2025_TSVDAF_1" readonly style="background-color: #f1f5f9; cursor: not-allowed; font-weight:700;">
       </div>
       <div class="meta-row">
         <span>No:</span>
-        <input type="text" id="kayitNo" placeholder="Örn: 01">
+        <input type="text" id="kayitNo" value="300" style="font-weight:700;">
       </div>
       <div class="meta-row">
         <span>Tarih:</span>
@@ -1046,6 +1046,52 @@ function doPost(e) {
   }
 
   // 2. DOSYA ADI OLUŞTURUCU: [ProjeAdı]_[No]_[Tarih].pdf
+    // --- SAYAÇ VE FORM NO YÖNETİMİ (300'den başlayan hafızalı sayaç) ---
+  const STORAGE_KEY_LAST_NO = 'aydn_last_record_no';
+  const FORM_NO_FIXED = '2025_TSVDAF_1';
+
+  function getNextRecordNumber() {
+    let storedNo = parseInt(localStorage.getItem(STORAGE_KEY_LAST_NO), 10);
+    let archiveMax = 299;
+    try {
+      const records = getArchiveRecords();
+      records.forEach(r => {
+        const n = parseInt(r.kayitNo || r.no, 10);
+        if (!isNaN(n) && n > archiveMax) {
+          archiveMax = n;
+        }
+      });
+    } catch(e) {}
+
+    let currentBase = isNaN(storedNo) ? 299 : storedNo;
+    let effective = Math.max(currentBase, archiveMax, 299);
+    return effective + 1;
+  }
+
+  function commitRecordNumber(numStr) {
+    const n = parseInt(numStr, 10);
+    if (!isNaN(n)) {
+      const cur = parseInt(localStorage.getItem(STORAGE_KEY_LAST_NO), 10) || 299;
+      if (n > cur) {
+        localStorage.setItem(STORAGE_KEY_LAST_NO, n.toString());
+      }
+    }
+  }
+
+  function initFormNumbers() {
+    const fIn = document.getElementById('formNo');
+    if (fIn) {
+      fIn.value = FORM_NO_FIXED;
+      fIn.setAttribute('readonly', 'true');
+    }
+    const kIn = document.getElementById('kayitNo');
+    if (kIn) {
+      if (!kIn.value || kIn.value === 'Örn: 01' || parseInt(kIn.value, 10) < 300) {
+        kIn.value = getNextRecordNumber();
+      }
+    }
+  }
+
   function generateSmartFileName() {
     const musteri = document.getElementById('musteriAdi').value.trim() || 'Servis_Projesi';
     const no = document.getElementById('kayitNo').value.trim() || 'No';
@@ -1790,6 +1836,7 @@ function doPost(e) {
       saveArchiveRecords(recs);
     }
 
+    commitRecordNumber(current.kayitNo || document.getElementById('kayitNo').value);
     const fileName = generateSmartFileName();
     showToast('⏳ Fotoğraflı PDF (' + fileName + ') oluşturulup Drive\'a yükleniyor...', 3000);
 
@@ -2029,6 +2076,7 @@ function doPost(e) {
     if (existIdx >= 0) recs[existIdx] = current; else recs.unshift(current);
     saveArchiveRecords(recs);
 
+    commitRecordNumber(current.kayitNo || document.getElementById('kayitNo').value);
     const fileName = generateSmartFileName();
     showToast('⏳ Fotoğraflı PDF (' + fileName + ') hazırlanıyor ve WhatsApp başlatılıyor...', 2500);
     
@@ -2076,6 +2124,7 @@ function doPost(e) {
     if (existIdx >= 0) recs[existIdx] = current; else recs.unshift(current);
     saveArchiveRecords(recs);
 
+    commitRecordNumber(current.kayitNo || document.getElementById('kayitNo').value);
     const fileName = generateSmartFileName();
     showToast('⏳ PDF (' + fileName + ') hazırlanıyor...', 2000);
     try {
@@ -2151,12 +2200,15 @@ function doPost(e) {
       cb.checked = (cb.value === "Devreye Alma" || cb.value === "Test & Teslim");
     });
 
+    initFormNumbers();
     showToast("✓ Tüm form alanları temizlendi.");
   }
 
   document.getElementById('btnReset').addEventListener('click', resetAllFormFields);
 
   window.addEventListener('DOMContentLoaded', () => {
+    initFormNumbers();
+
     fetchUsersFromCloud();
     refreshSystemSelect();
     updateArchiveBadge();
