@@ -2049,28 +2049,15 @@ function getOrCreateSheet() {
           localStorage.setItem(STORAGE_KEY_LAST_NO, finalMax.toString());
         }
 
-        // 3. Form Arşivini Birleştir (Bulut verisini öncelikli al)
+        // 3. Form Arşivini Eşitle (Buluttan silinen formlar diğer cihazlardan da anında silinir)
         if (data.forms && Array.isArray(data.forms)) {
-          const localForms = getArchiveRecords();
-          const mergedMap = new Map();
-          
-          localForms.forEach(f => {
-            const key = (f.id || f.kayitNo || '').toString().trim();
-            if (key) mergedMap.set(key, f);
-          });
-          
-          data.forms.forEach(f => {
-            const key = (f.id || f.kayitNo || '').toString().trim();
-            if (key) mergedMap.set(key, Object.assign({}, mergedMap.get(key) || {}, f));
-          });
-
-          const mergedArray = Array.from(mergedMap.values());
-          mergedArray.sort((a,b) => {
+          const cloudForms = data.forms.filter(f => f.kayitNo || f.projeAdi || f.musteriAdi);
+          cloudForms.sort((a,b) => {
             const na = parseInt((a.kayitNo || '0').match(/\d+/)?.[0] || 0, 10);
             const nb = parseInt((b.kayitNo || '0').match(/\d+/)?.[0] || 0, 10);
             return nb - na;
           });
-          localStorage.setItem(ARCHIVE_KEY, JSON.stringify(mergedArray));
+          localStorage.setItem(ARCHIVE_KEY, JSON.stringify(cloudForms));
         }
 
         // 4. Arayüz elemanlarını yenile
