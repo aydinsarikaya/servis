@@ -586,7 +586,7 @@
       PropertiesService.getScriptProperties().setProperty('USERS_JSON', usersJson);
     }
     
-    // 2. Form Arşivi (Tüm cihazlar için ortak Google E-Tablo veritabanı)
+    // 2. Form Arşivi (Tüm cihazlar için ortak Google E-Tablo)
     var db = getOrCreateSheet();
     var sheet = db.sheet;
     var data = sheet.getDataRange().getValues();
@@ -597,10 +597,14 @@
       var headers = data[0];
       for (var i = 1; i < data.length; i++) {
         var row = data[i];
-        if (!row[0]) continue;
+        if (!row[0] && !row[2]) continue; // ID veya Kayıt No boşsa atla
         var f = {};
         for (var j = 0; j < headers.length; j++) {
-          f[headers[j]] = row[j];
+          var val = row[j];
+          if (val instanceof Date) {
+            val = Utilities.formatDate(val, "GMT+3", "dd.MM.yyyy HH:mm");
+          }
+          f[headers[j]] = val !== undefined && val !== null ? val.toString() : "";
         }
         forms.push(f);
         
@@ -621,15 +625,28 @@
       lastRecordNo: maxNo
     };
     
-    return ContentService.createTextOutput(JSON.stringify(response)).setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify(response))
+      .setMimeType(ContentService.MimeType.JSON);
   } catch(err) {
-    return ContentService.createTextOutput(JSON.stringify({ status: "ERROR", message: err.toString() })).setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify({ status: "ERROR", message: err.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
   }
 }
 
 function doPost(e) {
   try {
-    var data = JSON.parse(e.postData.contents);
+    var rawContent = e.postData ? e.postData.contents : "";
+    var data = {};
+    if (rawContent) {
+      try {
+        data = JSON.parse(rawContent);
+      } catch(parseErr) {
+        data = e.parameter || {};
+      }
+    } else {
+      data = e.parameter || {};
+    }
+
     var action = data.action || "save_form";
     
     // A) KULLANICI GÜNCELLEME
@@ -638,16 +655,32 @@ function doPost(e) {
       return ContentService.createTextOutput(JSON.stringify({ status: "SUCCESS" })).setMimeType(ContentService.MimeType.JSON);
     }
     
-    // B) FORM SİLME
+    // B) TEK FORM SİLME
     if (action === "delete_form") {
       var db = getOrCreateSheet();
       var sheet = db.sheet;
       var values = sheet.getDataRange().getValues();
+      var targetId = (data.id || "").toString().trim();
+      var targetKayitNo = (data.kayitNo || "").toString().trim();
+
       for (var i = 1; i < values.length; i++) {
-        if (values[i][0] == data.id || values[i][2] == data.kayitNo) {
+        var rowId = (values[i][0] || "").toString().trim();
+        var rowNo = (values[i][2] || "").toString().trim();
+        if ((targetId && rowId === targetId) || (targetKayitNo && rowNo === targetKayitNo)) {
           sheet.deleteRow(i + 1);
           break;
         }
+      }
+      return ContentService.createTextOutput(JSON.stringify({ status: "SUCCESS" })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // B-2) TÜM FORMLARI TEMİZLEME
+    if (action === "clear_all_forms") {
+      var db = getOrCreateSheet();
+      var sheet = db.sheet;
+      var lastRow = sheet.getLastRow();
+      if (lastRow > 1) {
+        sheet.deleteRows(2, lastRow - 1);
       }
       return ContentService.createTextOutput(JSON.stringify({ status: "SUCCESS" })).setMimeType(ContentService.MimeType.JSON);
     }
@@ -699,45 +732,47 @@ function doPost(e) {
 
     // 4. Ortak E-Tabloya Form Kaydı Ekle / Güncelle
     var f = data.form || data;
-    var db = getOrCreateSheet();
-    var sheet = db.sheet;
-    var values = sheet.getDataRange().getValues();
-    var rowIdx = -1;
-    
-    var targetId = f.id || Utilities.getUuid();
-    for (var k = 1; k < values.length; k++) {
-      if (values[k][0] == targetId || (f.kayitNo && values[k][2] == f.kayitNo)) {
-        rowIdx = k + 1;
-        break;
+    if (f.kayitNo || f.projeAdi || f.musteriAdi) {
+      var db = getOrCreateSheet();
+      var sheet = db.sheet;
+      var values = sheet.getDataRange().getValues();
+      var rowIdx = -1;
+      
+      var targetId = f.id || Utilities.getUuid();
+      for (var k = 1; k < values.length; k++) {
+        if (values[k][0] == targetId || (f.kayitNo && values[k][2] == f.kayitNo)) {
+          rowIdx = k + 1;
+          break;
+        }
       }
-    }
-    
-    var rowData = [
-      targetId,
-      f.savedAt || Utilities.formatDate(new Date(), "GMT+3", "dd.MM.yyyy HH:mm"),
-      f.kayitNo || "-",
-      f.formNo || "-",
-      f.tarih || "-",
-      f.projeAdi || "-",
-      f.musteriAdi || "-",
-      f.ilgiliBirim || "-",
-      f.musteriAdres || "-",
-      f.musteriTel || "-",
-      f.musteriEmail || "-",
-      f.cihazGrubu || "-",
-      f.serviceTypes ? (Array.isArray(f.serviceTypes) ? f.serviceTypes.join(", ") : f.serviceTypes) : "-",
-      f.servisSonDurum || "-",
-      f.islemler || "-",
-      f.teslimEden || "-",
-      f.teslimAlan || "-",
-      f.teslimAlanGorev || "-",
-      fileUrl || f.fileUrl || "-"
-    ];
-    
-    if (rowIdx > 0) {
-      sheet.getRange(rowIdx, 1, 1, rowData.length).setValues([rowData]);
-    } else {
-      sheet.appendRow(rowData);
+      
+      var rowData = [
+        targetId,
+        f.savedAt || Utilities.formatDate(new Date(), "GMT+3", "dd.MM.yyyy HH:mm"),
+        f.kayitNo || "-",
+        f.formNo || "-",
+        f.tarih || "-",
+        f.projeAdi || "-",
+        f.musteriAdi || "-",
+        f.ilgiliBirim || "-",
+        f.musteriAdres || "-",
+        f.musteriTel || "-",
+        f.musteriEmail || "-",
+        f.cihazGrubu || "-",
+        f.serviceTypes ? (Array.isArray(f.serviceTypes) ? f.serviceTypes.join(", ") : f.serviceTypes) : "-",
+        f.servisSonDurum || "-",
+        f.islemler || "-",
+        f.teslimEden || "-",
+        f.teslimAlan || "-",
+        f.teslimAlanGorev || "-",
+        fileUrl || f.fileUrl || "-"
+      ];
+      
+      if (rowIdx > 0) {
+        sheet.getRange(rowIdx, 1, 1, rowData.length).setValues([rowData]);
+      } else {
+        sheet.appendRow(rowData);
+      }
     }
     
     return ContentService.createTextOutput(JSON.stringify({
@@ -754,7 +789,6 @@ function doPost(e) {
   }
 }
 
-// Otomatik E-Tablo Veritabanı (Google Drive'da kendiliğinden oluşur)
 function getOrCreateSheet() {
   var files = DriveApp.getFilesByName("AYDN_Servis_Formlari_Veritabani");
   var ss;
@@ -2065,11 +2099,12 @@ function getOrCreateSheet() {
     try {
       await fetch(url, {
         method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({ action: "delete_form", id: id, kayitNo: kayitNo })
       });
-    } catch(e) {}
+    } catch(e) {
+      console.warn('Buluttan silme hatası:', e);
+    }
   }
 
   async function uploadPDFToGoogleDrive(pdfBlob, fileName, metaData) {
@@ -2382,23 +2417,38 @@ function getOrCreateSheet() {
     showToast('✓ Form başarıyla yüklendi.');
   };
 
-  window.deleteRecord = function(id) {
-    if (!confirm('Bu servis kaydını arşivden silmek istediğinize emin misiniz?')) return;
+  window.deleteRecord = async function(id) {
+    if (!confirm('Bu servis kaydını arşivden silmek istediğinize emin misiniz? (Tüm cihazlardan ve buluttan silinecektir)')) return;
     let recs = getArchiveRecords();
     const targetRec = recs.find(r => r.id === id);
     recs = recs.filter(r => r.id !== id);
     saveArchiveRecords(recs);
-    if (targetRec) deleteRecordFromCloud(id, targetRec.kayitNo);
     renderArchiveList();
-    showToast('Kayıt silindi.');
+
+    if (targetRec) {
+      showToast('⏳ Buluttan siliniyor...');
+      await deleteRecordFromCloud(id, targetRec.kayitNo);
+      showToast('✓ Kayıt tüm cihazlar için silindi.');
+    }
   };
 
-  window.clearAllArchive = function() {
-    if (confirm('DİKKAT: Arşivdeki TÜM kayıtlar kalıcı olarak silinecektir. Onaylıyor musunuz?')) {
+  window.clearAllArchive = async function() {
+    if (confirm('DİKKAT: Arşivdeki TÜM kayıtlar kalıcı olarak silinecektir. Bulut tablosu da sıfırlanacaktır. Onaylıyor musunuz?')) {
       localStorage.removeItem(ARCHIVE_KEY);
       renderArchiveList();
       updateArchiveBadge();
-      showToast('Arşiv tamamen temizlendi.');
+
+      const url = getWebhookUrl();
+      if (url && url.startsWith('http')) {
+        try {
+          await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: "clear_all_forms" })
+          });
+        } catch(e){}
+      }
+      showToast('✓ Arşiv tamamen temizlendi.');
     }
   };
 
