@@ -831,13 +831,13 @@ function doPost(e) {
   <div class="card">
     <div class="card-title">Servis Türü & Çalışma Süresi</div>
     <div class="checkbox-group" id="serviceTypeGroup">
-      <label class="checkbox-item"><input type="checkbox" value="Devreye Alma" checked> Devreye Alma</label>
+      <label class="checkbox-item"><input type="checkbox" value="Test ve Devreye Alma" checked> Test ve Devreye Alma</label>
       <label class="checkbox-item"><input type="checkbox" value="Arıza / Onarım"> Arıza / Onarım</label>
       <label class="checkbox-item"><input type="checkbox" value="Periyodik Bakım"> Periyodik Bakım</label>
       <label class="checkbox-item"><input type="checkbox" value="Kurulum / Montaj"> Kurulum / Montaj</label>
       <label class="checkbox-item"><input type="checkbox" value="Yazılım / Lisans"> Yazılım / Lisans</label>
       <label class="checkbox-item"><input type="checkbox" value="Eğitim" checked> Eğitim</label>
-      <label class="checkbox-item"><input type="checkbox" value="Test & Teslim" checked> Test & Teslim</label>
+      <label class="checkbox-item"><input type="checkbox" value="Teslim" checked> Teslim</label>
     </div>
     <div class="grid-4">
       <div>
@@ -864,8 +864,13 @@ function doPost(e) {
     <div class="card-title">Müşteri / Proje ve Lokasyon Bilgileri</div>
     <div class="grid-2">
       <div>
-        <label>Proje / Müşteri / Tesis Adı:</label>
-        <input type="text" id="musteriAdi" placeholder="Örn: Burhaniye Adalet Binası">
+        <label>Proje / Tesis Adı:</label>
+        <input type="text" id="projeAdi" list="projeListesi" placeholder="Örn: Burhaniye Adalet Binası" autocomplete="off">
+        <datalist id="projeListesi"></datalist>
+
+        <label>Müşteri / Kurum Adı:</label>
+        <input type="text" id="musteriAdi" placeholder="Örn: Adalet Bakanlığı / Yüklenici Firma">
+
         <label>İlgili Birim / Muhatap:</label>
         <input type="text" id="ilgiliBirim" placeholder="İlgili Birim / Yetkili">
       </div>
@@ -957,7 +962,7 @@ function doPost(e) {
         <option value="Tam, eksiksiz, çalışır vaziyette teslim edildi" selected>✅ Tam, eksiksiz, çalışır vaziyette teslim edildi</option>
         <option value="Kısmi Teslim">⚠️ Kısmi Teslim</option>
         <option value="Parça / Ekipman Bekleniyor">⏳ Parça / Ekipman Bekleniyor</option>
-        <option value="Test Aşamasında">🔍 Test Aşamasında</option>
+        <option value="Test ve Devreye Alma Aşamasında">🔍 Test ve Devreye Alma Aşamasında</option>
       </select>
       <label>Müşteri Notu / Özel Talep:</label>
       <input type="text" id="musteriNotu" placeholder="Varsa teslim notu...">
@@ -982,7 +987,7 @@ function doPost(e) {
       <label>Yetkili Adı Soyadı:</label>
       <input type="text" id="teslimAlan" placeholder="Teslim Alan Yetkili">
       <label>Kurum / Birim:</label>
-      <input type="text" id="teslimAlanGorev" value="Adalet Bakanlığı İşletme Ekibi">
+      <input type="text" id="teslimAlanGorev" placeholder="Yetkilinin birimi / kurumu">
       <label>İmza (Müşteri İmza Alanı):</label>
       <canvas id="sign2" class="sign-canvas"></canvas>
       <button type="button" class="no-print" style="margin-top: 5px; font-size: 11px; padding: 4px 10px; border-radius: 0px; border: 1px solid #d1d5db; background: #fff; cursor: pointer;" onclick="clearCanvas('sign2')">İmzayı Temizle</button>
@@ -1066,31 +1071,72 @@ function doPost(e) {
   }
 
   // 2. DOSYA ADI OLUŞTURUCU: [ProjeAdı]_[No]_[Tarih].pdf
-    // --- SAYAÇ VE FORM NO YÖNETİMİ (300'den başlayan hafızalı sayaç) ---
+    // --- SAYAÇ VE FORM NO YÖNETİMİ (Projeye göre 300-1, 305-2 takibi) ---
   const STORAGE_KEY_LAST_NO = 'aydn_last_record_no';
   const FORM_NO_FIXED = '2025_TSVDAF_1';
 
-  function getNextRecordNumber() {
+  // Sadece ana taban numarasını (Örn: 300, 305) hesaplar
+  function getNextBaseRecordNumber() {
     let storedNo = parseInt(localStorage.getItem(STORAGE_KEY_LAST_NO), 10);
     let archiveMax = 299;
     try {
       const records = getArchiveRecords();
       records.forEach(r => {
-        const n = parseInt(r.kayitNo || r.no, 10);
-        if (!isNaN(n) && n > archiveMax) {
-          archiveMax = n;
+        const raw = (r.kayitNo || r.no || '').toString();
+        const baseMatch = raw.match(/\d+/);
+        if (baseMatch) {
+          const n = parseInt(baseMatch[0], 10);
+          if (!isNaN(n) && n > archiveMax) archiveMax = n;
         }
       });
     } catch(e) {}
 
     let currentBase = isNaN(storedNo) ? 299 : storedNo;
-    let effective = Math.max(currentBase, archiveMax, 299);
-    return effective + 1;
+    return Math.max(currentBase, archiveMax, 299) + 1;
+  }
+
+  // Geçmiş projeleri <datalist>'e doldurur
+  function updateProjectDatalist() {
+    const dlist = document.getElementById('projeListesi');
+    if (!dlist) return;
+    const recs = getArchiveRecords();
+    const projects = new Set();
+    recs.forEach(r => {
+      const p = (r.projeAdi || r.musteriAdi || '').trim();
+      if (p) projects.add(p);
+    });
+    dlist.innerHTML = Array.from(projects).map(p => `<option value="${p}">`).join('');
+  }
+
+  // Proje adına göre No kutusunu (300-1, 305-2 vb.) hesaplayıp yazar
+  function updateProjectRecordNumber() {
+    const kIn = document.getElementById('kayitNo');
+    if (!kIn) return;
+    
+    const pVal = (document.getElementById('projeAdi')?.value || '').trim().toLowerCase();
+    const currentVal = kIn.value.trim();
+    const baseMatch = currentVal.match(/\d+/);
+    const baseNo = baseMatch ? parseInt(baseMatch[0], 10) : getNextBaseRecordNumber();
+
+    if (!pVal) {
+      kIn.value = `${baseNo}-1`;
+      return;
+    }
+
+    const recs = getArchiveRecords();
+    const count = recs.filter(r => {
+      const p = (r.projeAdi || r.musteriAdi || '').trim().toLowerCase();
+      return p === pVal;
+    }).length;
+
+    kIn.value = `${baseNo}-${count + 1}`;
   }
 
   function commitRecordNumber(numStr) {
-    const n = parseInt(numStr, 10);
-    if (!isNaN(n)) {
+    if (!numStr) return;
+    const baseMatch = numStr.toString().match(/\d+/);
+    if (baseMatch) {
+      const n = parseInt(baseMatch[0], 10);
       const cur = parseInt(localStorage.getItem(STORAGE_KEY_LAST_NO), 10) || 299;
       if (n >= cur) {
         localStorage.setItem(STORAGE_KEY_LAST_NO, n.toString());
@@ -1105,10 +1151,8 @@ function doPost(e) {
       fIn.setAttribute('readonly', 'true');
     }
     const kIn = document.getElementById('kayitNo');
-    if (kIn) {
-      if (force || !kIn.value || kIn.value === 'Örn: 01' || parseInt(kIn.value, 10) < 300) {
-        kIn.value = getNextRecordNumber();
-      }
+    if (kIn && (force || !kIn.value)) {
+      updateProjectRecordNumber();
     }
   }
 
@@ -1125,7 +1169,7 @@ function doPost(e) {
   }
 
   function generateSmartFileName() {
-    const musteri = document.getElementById('musteriAdi').value.trim() || 'Servis_Projesi';
+    const proje = document.getElementById('projeAdi').value.trim() || document.getElementById('musteriAdi').value.trim() || 'Servis_Projesi';
     const no = document.getElementById('kayitNo').value.trim() || 'No';
     const tarih = document.getElementById('tarih').value.trim() || new Date().toISOString().slice(0,10);
 
@@ -1142,7 +1186,7 @@ function doPost(e) {
         .replace(/^_|_$/g, '');
     };
 
-    const cleanMusteri = cleanStr(musteri).substring(0, 35);
+    const cleanMusteri = cleanStr(proje).substring(0, 35);
     const cleanNo = cleanStr(no);
     const cleanTarih = cleanStr(formatTRDate(tarih));
 
@@ -1545,42 +1589,85 @@ function doPost(e) {
     }
 
     // 1. Müşteri / Proje Bilgileri
-    drawBox('MÜŞTERİ / PROJE VE LOKASYON BİLGİLERİ', 135);
-    ctx.font = 'bold 14px -apple-system, sans-serif';
+    drawBox('MÜŞTERİ / PROJE VE LOKASYON BİLGİLERİ', 150);
+    ctx.font = 'bold 13.5px -apple-system, sans-serif';
     ctx.fillStyle = '#374151';
-    ctx.fillText('Proje / Müşteri: ', 75, curY + 54);
-    ctx.fillText('Yetkili / Birim: ', 75, curY + 78);
-    ctx.fillText('Adres / Lokasyon: ', 75, curY + 102);
-    ctx.fillText('İletişim / E-Posta: ', 75, curY + 126);
+    ctx.fillText('Proje / Tesis: ', 75, curY + 50);
+    ctx.fillText('Müşteri / Kurum: ', 75, curY + 74);
+    ctx.fillText('Yetkili / Birim: ', 75, curY + 98);
+    ctx.fillText('Adres / Lokasyon: ', 75, curY + 122);
+    ctx.fillText('İletişim / E-Posta: ', 75, curY + 144);
 
-    ctx.font = '14px -apple-system, sans-serif';
+    ctx.font = '13.5px -apple-system, sans-serif';
     ctx.fillStyle = '#000000';
-    ctx.fillText(document.getElementById('musteriAdi').value, 215, curY + 54);
-    ctx.fillText(document.getElementById('ilgiliBirim').value, 215, curY + 78);
-    ctx.fillText(document.getElementById('musteriAdres').value, 215, curY + 102);
+    ctx.fillText(document.getElementById('projeAdi').value || '-', 215, curY + 50);
+    ctx.fillText(document.getElementById('musteriAdi').value || '-', 215, curY + 74);
+    ctx.fillText(document.getElementById('ilgiliBirim').value || '-', 215, curY + 98);
+    ctx.fillText(document.getElementById('musteriAdres').value || '-', 215, curY + 122);
 
     const mTel = document.getElementById('musteriTel').value.trim();
     const mMail = document.getElementById('musteriEmail').value.trim();
     let contactStr = mTel || '-';
     if (mMail) contactStr += (mTel ? '  |  ' : '') + 'E-Posta: ' + mMail;
-    ctx.fillText(contactStr, 215, curY + 126);
-    curY += 150;
+    ctx.fillText(contactStr, 215, curY + 144);
+    curY += 165;
 
-    // 2. SİSTEM DETAYLARI (SADECE SİSTEM SEÇİMİ VE TARİH / SAAT - IP VE YAZILIM SİLİNDİ)
-    drawBox('SİSTEM DETAYLARI', 75);
+    // 2. SERVİS TÜRÜ & SİSTEM DETAYLARI (PDF ÇIKTISINDA GÖRÜNÜR)
+    drawBox('SERVİS TÜRÜ, SİSTEM VE ÇALIŞMA SÜRESİ', 115);
+    
+    // Servis Türü Onay Kutuları Satırı
+    ctx.font = 'bold 13.5px -apple-system, sans-serif';
+    ctx.fillStyle = '#374151';
+    ctx.fillText('Servis Türü: ', 75, curY + 52);
+
+    const allTypes = [
+      "Test ve Devreye Alma", 
+      "Arıza / Onarım", 
+      "Periyodik Bakım", 
+      "Kurulum / Montaj", 
+      "Yazılım / Lisans", 
+      "Eğitim", 
+      "Teslim"
+    ];
+
+    const checkedTypes = Array.from(document.querySelectorAll('#serviceTypeGroup input[type="checkbox"]:checked')).map(c => c.value);
+
+    let typeX = 175;
+    const typeY = curY + 52;
+    allTypes.forEach(tName => {
+      const isChecked = checkedTypes.includes(tName);
+      
+      // Onay Kutusu Çizimi
+      ctx.strokeStyle = isChecked ? '#000000' : '#9ca3af';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(typeX, typeY - 12, 13, 13);
+      
+      if (isChecked) {
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(typeX + 2.5, typeY - 9.5, 8, 8);
+      }
+
+      ctx.font = isChecked ? 'bold 12.5px -apple-system, sans-serif' : '12px -apple-system, sans-serif';
+      ctx.fillStyle = isChecked ? '#000000' : '#4b5563';
+      ctx.fillText(tName, typeX + 18, typeY);
+
+      typeX += ctx.measureText(tName).width + 26;
+    });
+
+    // Sistem Grubu ve Süre Bilgileri
     ctx.font = 'bold 14px -apple-system, sans-serif';
     ctx.fillStyle = '#374151';
-    ctx.fillText('Sistem Grubu: ', 75, curY + 54);
-    ctx.fillText('Servis Süresi: ', 650, curY + 54);
+    ctx.fillText('Sistem Grubu: ', 75, curY + 90);
+    ctx.fillText('Servis Süresi: ', 650, curY + 90);
 
     ctx.font = 'bold 14.5px -apple-system, sans-serif';
     ctx.fillStyle = '#000000';
     const chosenSystem = document.getElementById('cihazGrubuSelect').value;
-    ctx.fillText(chosenSystem, 185, curY + 54);
+    ctx.fillText(chosenSystem, 185, curY + 90);
 
     ctx.font = '14px -apple-system, sans-serif';
-    ctx.fillText(formatTRDate(document.getElementById('baslangicTarihi').value) + ' ' + document.getElementById('girisSaati').value + ' - ' + formatTRDate(document.getElementById('bitisTarihi').value) + ' ' + document.getElementById('cikisSaati').value, 760, curY + 54);
-    curY += 90;
+    ctx.fillText(formatTRDate(document.getElementById('baslangicTarihi').value) + ' ' + document.getElementById('girisSaati').value + ' - ' + formatTRDate(document.getElementById('bitisTarihi').value) + ' ' + document.getElementById('cikisSaati').value, 760, curY + 90);
+    curY += 130;
 
     // 3. YAPILAN İŞLEMLER (OTOMATİK KELİME KAYDIRMA & KESİN SIĞDIRMA)
     function getWrappedLines(textToWrap, maxWidth) {
@@ -1830,6 +1917,7 @@ function doPost(e) {
       bitisTarihi: document.getElementById('bitisTarihi').value,
       girisSaati: document.getElementById('girisSaati').value,
       cikisSaati: document.getElementById('cikisSaati').value,
+      projeAdi: document.getElementById('projeAdi').value,
       musteriAdi: document.getElementById('musteriAdi').value,
       ilgiliBirim: document.getElementById('ilgiliBirim').value,
       musteriAdres: document.getElementById('musteriAdres').value,
@@ -1852,8 +1940,8 @@ function doPost(e) {
   // Drive & Arşive Kaydet Butonu
   document.getElementById('btnSaveRecord').addEventListener('click', async function() {
     const current = getCurrentFormData();
-    if (!current.formNo && !current.musteriAdi) {
-      alert('Lütfen en azından Müşteri Adı veya Form Numarası giriniz.');
+    if (!current.formNo && !current.projeAdi && !current.musteriAdi) {
+      alert('Lütfen en azından Proje/Müşteri Adı veya Form Numarası giriniz.');
       return;
     }
     const recs = getArchiveRecords();
@@ -1872,6 +1960,7 @@ function doPost(e) {
     } else {
       recs.unshift(current);
       saveArchiveRecords(recs);
+      updateProjectDatalist();
     }
 
     commitRecordNumber(current.kayitNo || document.getElementById('kayitNo').value);
@@ -1980,7 +2069,7 @@ function doPost(e) {
       tr.innerHTML = `
         <td><strong>${formatTRDate(r.tarih)}</strong><br><small style="color:#6b7280">${r.savedAt || ''}</small></td>
         <td><code>${r.kayitNo || '-'}</code><br><small>${r.formNo || '-'}</small></td>
-        <td><strong>${r.musteriAdi || '-'}</strong><br><small>${r.musteriAdres ? r.musteriAdres.substring(0,40)+'...' : ''}</small></td>
+        <td><strong>${r.projeAdi ? r.projeAdi + ' (' + (r.musteriAdi || '-') + ')' : (r.musteriAdi || '-')}</strong><br><small>${r.musteriAdres ? r.musteriAdres.substring(0,40)+'...' : ''}</small></td>
         <td><small>${r.cihazGrubu || '-'}</small></td>
         <td style="text-align: center; white-space: nowrap;">
           <button type="button" class="row-action-btn" onclick="loadRecordIntoForm('${r.id}')">📂 Aç</button>
@@ -2005,6 +2094,7 @@ function doPost(e) {
     document.getElementById('bitisTarihi').value = r.bitisTarihi || '';
     document.getElementById('girisSaati').value = r.girisSaati || '';
     document.getElementById('cikisSaati').value = r.cikisSaati || '';
+    document.getElementById('projeAdi').value = r.projeAdi || r.musteriAdi || '';
     document.getElementById('musteriAdi').value = r.musteriAdi || '';
     document.getElementById('ilgiliBirim').value = r.ilgiliBirim || '';
     document.getElementById('musteriAdres').value = r.musteriAdres || '';
@@ -2090,10 +2180,10 @@ function doPost(e) {
       return;
     }
     let csv = '\uFEFF';
-    csv += 'Kayıt Tarihi;Form No;No;Tarih;Müşteri / Proje;Birim;Adres;Telefon;E-Posta;Sistem Detayı;Durum;Teslim Eden;Teslim Alan\n';
+    csv += 'Kayıt Tarihi;Form No;No;Tarih;Proje / Tesis;Müşteri / Kurum;Birim;Adres;Telefon;E-Posta;Sistem Detayı;Durum;Teslim Eden;Teslim Alan\n';
     recs.forEach(r => {
       const clean = (t) => (t || '').replace(/;/g, ' ').replace(/\n/g, ' ');
-      csv += `"${clean(r.savedAt)}";"${clean(r.formNo)}";"${clean(r.kayitNo)}";"${clean(r.tarih)}";"${clean(r.musteriAdi)}";"${clean(r.ilgiliBirim)}";"${clean(r.musteriAdres)}";"${clean(r.musteriTel)}";"${clean(r.musteriEmail)}";"${clean(r.cihazGrubu)}";"${clean(r.servisSonDurum)}";"${clean(r.teslimEden)}";"${clean(r.teslimAlan)}"\n`;
+      csv += `"${clean(r.savedAt)}";"${clean(r.formNo)}";"${clean(r.kayitNo)}";"${clean(r.tarih)}";"${clean(r.projeAdi)}";"${clean(r.musteriAdi)}";"${clean(r.ilgiliBirim)}";"${clean(r.musteriAdres)}";"${clean(r.musteriTel)}";"${clean(r.musteriEmail)}";"${clean(r.cihazGrubu)}";"${clean(r.servisSonDurum)}";"${clean(r.teslimEden)}";"${clean(r.teslimAlan)}"\n`;
     });
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -2201,6 +2291,7 @@ function doPost(e) {
     if (!confirm('Tüm doldurulabilir alanlar, yapılan işlemler, malzemeler ve imzalar tamamen temizlenecektir. Onaylıyor musunuz?')) return;
 
     // Metin alanları
+    document.getElementById('projeAdi').value = '';
     document.getElementById('musteriAdi').value = '';
     document.getElementById('ilgiliBirim').value = '';
     document.getElementById('musteriAdres').value = '';
@@ -2243,7 +2334,7 @@ function doPost(e) {
 
     // Onay kutuları
     document.querySelectorAll('#serviceTypeGroup input[type="checkbox"]').forEach(cb => {
-      cb.checked = (cb.value === "Devreye Alma" || cb.value === "Test & Teslim");
+      cb.checked = (cb.value === "Test ve Devreye Alma" || cb.value === "Eğitim" || cb.value === "Teslim");
     });
 
     initFormNumbers(true);
@@ -2253,7 +2344,11 @@ function doPost(e) {
   document.getElementById('btnReset').addEventListener('click', resetAllFormFields);
 
   window.addEventListener('DOMContentLoaded', () => {
+    updateProjectDatalist();
     initFormNumbers(true);
+
+    document.getElementById('projeAdi')?.addEventListener('input', updateProjectRecordNumber);
+    document.getElementById('projeAdi')?.addEventListener('change', updateProjectRecordNumber);
 
     fetchUsersFromCloud();
     refreshSystemSelect();
