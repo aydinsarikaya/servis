@@ -1982,44 +1982,60 @@ function getOrCreateSheet() {
 
   // --- BULUT VE CİHAZLAR ARASI CANLI SENKRONİZASYON ---
   async function syncAllFromCloud(showToastMsg = false) {
-    const url = getWebhookUrl();
-    if (!url || !url.startsWith('http')) return;
+    const baseUrl = getWebhookUrl();
+    if (!baseUrl || !baseUrl.startsWith('http')) {
+      if (showToastMsg) alert('Google Drive / Webhook URL adresi tanımlı değil!');
+      return;
+    }
 
     try {
       if (showToastMsg) showToast('⏳ Bulut veritabanı eşitleniyor...');
-      const resp = await fetch(url, { redirect: "follow" });
-      if (!resp.ok) return;
+      
+      const cacheBusterUrl = baseUrl + (baseUrl.indexOf('?') === -1 ? '?' : '&') + 't=' + new Date().getTime();
+      const resp = await fetch(cacheBusterUrl, {
+        method: 'GET',
+        cache: 'no-store',
+        redirect: 'follow'
+      });
+
+      if (!resp.ok) {
+        if (showToastMsg) alert('Sunucu bağlantı hatası: ' + resp.status);
+        return;
+      }
 
       const data = await resp.json();
       if (data.status === "SUCCESS") {
-        // 1. Kullanıcı şifrelerini güncelle
-        if (data.users) localStorage.setItem(USERS_KEY, JSON.stringify(data.users));
+        // 1. Kullanıcı şifrelerini güncelle (USERS_DB_KEY doğru anahtar)
+        if (data.users) localStorage.setItem(USERS_DB_KEY, JSON.stringify(data.users));
 
         // 2. Taban Sayaç Numarasını Eşitle
         if (data.lastRecordNo) {
           const localLast = parseInt(localStorage.getItem(STORAGE_KEY_LAST_NO), 10) || 299;
-          if (data.lastRecordNo > localLast) {
-            localStorage.setItem(STORAGE_KEY_LAST_NO, data.lastRecordNo.toString());
-          }
+          const finalMax = Math.max(localLast, parseInt(data.lastRecordNo, 10));
+          localStorage.setItem(STORAGE_KEY_LAST_NO, finalMax.toString());
         }
 
-        // 3. Form Arşivini Birleştir (Telefon + Bilgisayar + Bulut E-Tablo)
+        // 3. Form Arşivini Birleştir (Bulut verisini öncelikli al)
         if (data.forms && Array.isArray(data.forms)) {
           const localForms = getArchiveRecords();
           const mergedMap = new Map();
           
           localForms.forEach(f => {
-            const key = f.id || f.kayitNo;
+            const key = (f.id || f.kayitNo || '').toString().trim();
             if (key) mergedMap.set(key, f);
           });
           
           data.forms.forEach(f => {
-            const key = f.id || f.kayitNo;
+            const key = (f.id || f.kayitNo || '').toString().trim();
             if (key) mergedMap.set(key, Object.assign({}, mergedMap.get(key) || {}, f));
           });
 
           const mergedArray = Array.from(mergedMap.values());
-          mergedArray.sort((a,b) => (b.kayitNo || '').localeCompare(a.kayitNo || ''));
+          mergedArray.sort((a,b) => {
+            const na = parseInt((a.kayitNo || '0').match(/\d+/)?.[0] || 0, 10);
+            const nb = parseInt((b.kayitNo || '0').match(/\d+/)?.[0] || 0, 10);
+            return nb - na;
+          });
           localStorage.setItem(ARCHIVE_KEY, JSON.stringify(mergedArray));
         }
 
@@ -2028,16 +2044,18 @@ function getOrCreateSheet() {
         updateArchiveBadge();
         updateProjectRecordNumber();
 
-        // Arşiv penceresi açıksa listeyi tazele
         const arcModal = document.getElementById('archiveModal');
         if (arcModal && arcModal.style.display === 'flex') {
           renderArchiveList();
         }
 
-        if (showToastMsg) showToast('✓ Telefon ve Bilgisayar eşitlendi!');
+        if (showToastMsg) showToast('✓ Senkronizasyon tamamlandı (' + (data.forms ? data.forms.length : 0) + ' form)');
+      } else {
+        if (showToastMsg) alert('Bulut Hatası: ' + (data.message || 'Bilinmeyen hata'));
       }
     } catch(e) {
-      console.log('Bulut eşitleme hatası:', e);
+      console.error('Bulut eşitleme hatası:', e);
+      if (showToastMsg) alert('Bağlantı kurulamadı. Webhook URL izninin "Herkes (Anyone)" olduğundan ve yeni sürümle dağıtıldığından emin olun.');
     }
   }
 
