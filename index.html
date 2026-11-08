@@ -576,83 +576,201 @@
         1. <strong><a href="https://script.google.com" target="_blank" style="color:#2563eb;">script.google.com</a></strong> adresinde <strong>"Yeni Proje"</strong> oluşturun.<br>
         2. Kod editörüne aşağıdaki kodu yapıştırıp kaydedin:<br>
         <pre style="background:#fff; padding:8px; border:1px solid #cbd5e1; overflow-x:auto; margin:6px 0; font-size:10.5px;">function doGet(e) {
-  // Tüm cihazlar için güncel kullanıcı ve şifreleri buluttan getirir
-  var usersJson = PropertiesService.getScriptProperties().getProperty('USERS_JSON');
-  if (!usersJson) {
-    usersJson = JSON.stringify({
-      "aydin": { password: "asm", role: "admin", name: "Aydın SARIKAYA" }
-    });
-    PropertiesService.getScriptProperties().setProperty('USERS_JSON', usersJson);
+  try {
+    // 1. Kullanıcılar
+    var usersJson = PropertiesService.getScriptProperties().getProperty('USERS_JSON');
+    if (!usersJson) {
+      usersJson = JSON.stringify({
+        "aydin": { password: "asm", role: "admin", name: "Aydın SARIKAYA" }
+      });
+      PropertiesService.getScriptProperties().setProperty('USERS_JSON', usersJson);
+    }
+    
+    // 2. Form Arşivi (Tüm cihazlar için ortak Google E-Tablo veritabanı)
+    var db = getOrCreateSheet();
+    var sheet = db.sheet;
+    var data = sheet.getDataRange().getValues();
+    var forms = [];
+    var maxNo = 299;
+    
+    if (data.length > 1) {
+      var headers = data[0];
+      for (var i = 1; i < data.length; i++) {
+        var row = data[i];
+        if (!row[0]) continue;
+        var f = {};
+        for (var j = 0; j < headers.length; j++) {
+          f[headers[j]] = row[j];
+        }
+        forms.push(f);
+        
+        // Sayaç taban numarasını hesapla
+        var rawNo = (f.kayitNo || f.no || "").toString();
+        var match = rawNo.match(/\d+/);
+        if (match) {
+          var n = parseInt(match[0], 10);
+          if (!isNaN(n) && n > maxNo) maxNo = n;
+        }
+      }
+    }
+    
+    var response = {
+      status: "SUCCESS",
+      users: JSON.parse(usersJson),
+      forms: forms,
+      lastRecordNo: maxNo
+    };
+    
+    return ContentService.createTextOutput(JSON.stringify(response)).setMimeType(ContentService.MimeType.JSON);
+  } catch(err) {
+    return ContentService.createTextOutput(JSON.stringify({ status: "ERROR", message: err.toString() })).setMimeType(ContentService.MimeType.JSON);
   }
-  return ContentService.createTextOutput(usersJson).setMimeType(ContentService.MimeType.JSON);
 }
 
 function doPost(e) {
   try {
     var data = JSON.parse(e.postData.contents);
+    var action = data.action || "save_form";
     
-    // A) KULLANICI / ŞİFRE BULUT SENKRONİZASYONU
-    if (data.action === "save_users") {
+    // A) KULLANICI GÜNCELLEME
+    if (action === "save_users") {
       PropertiesService.getScriptProperties().setProperty('USERS_JSON', JSON.stringify(data.users));
       return ContentService.createTextOutput(JSON.stringify({ status: "SUCCESS" })).setMimeType(ContentService.MimeType.JSON);
     }
     
-    if (data.action === "get_users") {
-      var usersJson = PropertiesService.getScriptProperties().getProperty('USERS_JSON');
-      return ContentService.createTextOutput(usersJson || "{}").setMimeType(ContentService.MimeType.JSON);
+    // B) FORM SİLME
+    if (action === "delete_form") {
+      var db = getOrCreateSheet();
+      var sheet = db.sheet;
+      var values = sheet.getDataRange().getValues();
+      for (var i = 1; i < values.length; i++) {
+        if (values[i][0] == data.id || values[i][2] == data.kayitNo) {
+          sheet.deleteRow(i + 1);
+          break;
+        }
+      }
+      return ContentService.createTextOutput(JSON.stringify({ status: "SUCCESS" })).setMimeType(ContentService.MimeType.JSON);
     }
 
-    // B) PDF OLUŞTURMA, GOOGLE DRIVE'A YÜKLEME VE DOĞRUDAN MAİL GÖNDERME
-
-    // B) PDF OLUŞTURMA VE MAİL
+    // C) FORM VE PDF KAYDETME
+    var fileUrl = "";
+    var emailSent = false;
+    
+    // 1. Google Drive Klasörü
     var folderName = "Teknik Servis Formlari (AYDN)";
     var folders = DriveApp.getFoldersByName(folderName);
     var folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(folderName);
     
-    // 2. PDF Dosyasını oluştur ve klasöre kaydet (Varsayılan olarak tamamen GİZLİ kalır)
-    var bytes = Utilities.base64Decode(data.pdfBase64);
-    var blob = Utilities.newBlob(bytes, 'application/pdf', data.fileName);
-    var file = folder.createFile(blob);
+    // 2. PDF Dosyası Yükleme
+    if (data.pdfBase64 && data.fileName) {
+      var bytes = Utilities.base64Decode(data.pdfBase64);
+      var blob = Utilities.newBlob(bytes, 'application/pdf', data.fileName);
+      var file = folder.createFile(blob);
+      fileUrl = file.getUrl();
 
-    // 3. Müşteri Maili Girilmişse PDF'i Otomatik E-Posta Olarak Gönder
-    var emailSent = false;
-    var targetEmail = (data.musteriEmail || data.userEmail || "").trim();
-    if (targetEmail && targetEmail.indexOf("@") !== -1) {
-      try {
-        var subject = "Teknik Servis ve Devreye Alma Formu - " + (data.musteriAdi || "") + " (" + (data.kayitNo || data.formNo || "") + ")";
-        var bodyText = "Sayın Yetkili,\n\n" +
-          "Aydın Sarıkaya Mühendislik Limited Şirketi tarafından gerçekleştirilen teknik servis ve devreye alma işlemlerine ait onaylı servis formu ekte bilginize sunulmuştur.\n\n" +
-          "Proje / Müşteri: " + (data.musteriAdi || "-") + "\n" +
-          "Form No: " + (data.formNo || "-") + " | Kayıt No: " + (data.kayitNo || "-") + "\n" +
-          "Tarih: " + (data.tarih || "-") + "\n" +
-          "Sistem: " + (data.cihazGrubu || "-") + "\n" +
-          "Durum: " + (data.servisSonDurum || "-") + "\n\n" +
-          "İyi çalışmalar dileriz.\n\n" +
-          "AYDIN SARIKAYA MÜHENDİSLİK LTD. ŞTİ.\n" +
-          "Koç Kuleleri 2A / 13 Çankaya / ANKARA\n" +
-          "Tel: 0 532 654 67 14 | E-posta: info@aydn.com.tr";
+      // 3. E-Posta Gönderimi
+      var targetEmail = (data.musteriEmail || data.userEmail || "").trim();
+      if (targetEmail && targetEmail.indexOf("@") !== -1) {
+        try {
+          var subject = "Teknik Servis ve Devreye Alma Formu - " + (data.projeAdi || data.musteriAdi || "") + " (" + (data.kayitNo || data.formNo || "") + ")";
+          var bodyText = "Sayın Yetkili,\n\n" +
+            "Aydın Sarıkaya Mühendislik Limited Şirketi tarafından gerçekleştirilen teknik servis ve devreye alma işlemlerine ait onaylı servis formu ekte bilginize sunulmuştur.\n\n" +
+            "Proje / Tesis: " + (data.projeAdi || "-") + "\n" +
+            "Müşteri / Kurum: " + (data.musteriAdi || "-") + "\n" +
+            "Form No: " + (data.formNo || "-") + " | Kayıt No: " + (data.kayitNo || "-") + "\n" +
+            "Tarih: " + (data.tarih || "-") + "\n" +
+            "Sistem: " + (data.cihazGrubu || "-") + "\n" +
+            "Durum: " + (data.servisSonDurum || "-") + "\n\n" +
+            "İyi çalışmalar dileriz.\n\n" +
+            "AYDIN SARIKAYA MÜHENDİSLİK LTD. ŞTİ.\n" +
+            "Koç Kuleleri 2A / 13 Çankaya / ANKARA\n" +
+            "Tel: 0 532 654 67 14 | E-posta: info@aydn.com.tr";
 
-        GmailApp.sendEmail(targetEmail, subject, bodyText, {
-          name: "Aydın Sarıkaya Mühendislik",
-          attachments: [blob]
-        });
-        emailSent = true;
-      } catch (mailErr) {
-        Logger.log("Mail gönderim hatası: " + mailErr.toString());
+          GmailApp.sendEmail(targetEmail, subject, bodyText, {
+            name: "Aydın Sarıkaya Mühendislik",
+            attachments: [blob]
+          });
+          emailSent = true;
+        } catch(mErr) {
+          Logger.log("Mail hatasi: " + mErr.toString());
+        }
       }
+    }
+
+    // 4. Ortak E-Tabloya Form Kaydı Ekle / Güncelle
+    var f = data.form || data;
+    var db = getOrCreateSheet();
+    var sheet = db.sheet;
+    var values = sheet.getDataRange().getValues();
+    var rowIdx = -1;
+    
+    var targetId = f.id || Utilities.getUuid();
+    for (var k = 1; k < values.length; k++) {
+      if (values[k][0] == targetId || (f.kayitNo && values[k][2] == f.kayitNo)) {
+        rowIdx = k + 1;
+        break;
+      }
+    }
+    
+    var rowData = [
+      targetId,
+      f.savedAt || Utilities.formatDate(new Date(), "GMT+3", "dd.MM.yyyy HH:mm"),
+      f.kayitNo || "-",
+      f.formNo || "-",
+      f.tarih || "-",
+      f.projeAdi || "-",
+      f.musteriAdi || "-",
+      f.ilgiliBirim || "-",
+      f.musteriAdres || "-",
+      f.musteriTel || "-",
+      f.musteriEmail || "-",
+      f.cihazGrubu || "-",
+      f.serviceTypes ? (Array.isArray(f.serviceTypes) ? f.serviceTypes.join(", ") : f.serviceTypes) : "-",
+      f.servisSonDurum || "-",
+      f.islemler || "-",
+      f.teslimEden || "-",
+      f.teslimAlan || "-",
+      f.teslimAlanGorev || "-",
+      fileUrl || f.fileUrl || "-"
+    ];
+    
+    if (rowIdx > 0) {
+      sheet.getRange(rowIdx, 1, 1, rowData.length).setValues([rowData]);
+    } else {
+      sheet.appendRow(rowData);
     }
     
     return ContentService.createTextOutput(JSON.stringify({
       status: "SUCCESS",
-      fileUrl: file.getUrl(),
+      fileUrl: fileUrl,
       emailSent: emailSent
     })).setMimeType(ContentService.MimeType.JSON);
+    
   } catch(err) {
     return ContentService.createTextOutput(JSON.stringify({
       status: "ERROR",
       message: err.toString()
     })).setMimeType(ContentService.MimeType.JSON);
   }
+}
+
+// Otomatik E-Tablo Veritabanı (Google Drive'da kendiliğinden oluşur)
+function getOrCreateSheet() {
+  var files = DriveApp.getFilesByName("AYDN_Servis_Formlari_Veritabani");
+  var ss;
+  if (files.hasNext()) {
+    ss = SpreadsheetApp.open(files.next());
+  } else {
+    ss = SpreadsheetApp.create("AYDN_Servis_Formlari_Veritabani");
+    var s = ss.getActiveSheet();
+    s.setName("Servis_Formlari");
+    s.appendRow([
+      "id", "savedAt", "kayitNo", "formNo", "tarih", "projeAdi", "musteriAdi",
+      "ilgiliBirim", "musteriAdres", "musteriTel", "musteriEmail", "cihazGrubu",
+      "serviceTypes", "servisSonDurum", "islemler", "teslimEden", "teslimAlan", "teslimAlanGorev", "fileUrl"
+    ]);
+  }
+  return { ss: ss, sheet: ss.getSheets()[0] };
 }</pre>
         3. Sağ üstten <strong>Dağıt (Deploy) > Yeni Dağıtım</strong> seçin. Erişim iznini <strong>Herkes (Anyone)</strong> yapın ve <strong>Dağıt</strong>'a tıklayın.<br>
         4. Alınan Web URL'sini yukarıdaki kutucuğa yapıştırın!
@@ -766,6 +884,7 @@ function doPost(e) {
     </div>
     <div class="modal-foot">
       <div>
+        <button type="button" class="top-btn" style="background:#2563eb; color:#fff;" onclick="syncAllFromCloud(true)">🔄 Buluttan Eşitle</button>
         <button type="button" class="top-btn" onclick="exportArchiveCSV()">📊 Excel/CSV Olarak İndir</button>
       </div>
       <div>
@@ -790,6 +909,7 @@ function doPost(e) {
         <span id="cloudStatusText">Drive: Kapalı</span>
       </span>
       <button type="button" class="top-btn" onclick="openCloudModal()">☁️ Google Drive Ayarı</button>
+      <button type="button" class="top-btn" style="background:#2563eb; color:#fff;" onclick="syncAllFromCloud(true)">🔄 Eşitle</button>
       <button type="button" class="top-btn" onclick="openArchiveModal()">📂 Formlar (<span id="archiveCountBadge">0</span>)</button>
       <button type="button" class="top-btn" id="btnAdminUsers" style="display:none;" onclick="openUserManageModal()">👥 Kullanıcılar</button>
       <button type="button" class="top-btn" onclick="openChangePasswordModal()">🔑 Şifre</button>
@@ -842,11 +962,11 @@ function doPost(e) {
     <div class="grid-4">
       <div>
         <label>Başlangıç Tarihi:</label>
-        <input type="date" id="baslangicTarihi" value="2026-09-01">
+        <input type="date" id="baslangicTarihi">
       </div>
       <div>
         <label>Bitiş Tarihi:</label>
-        <input type="date" id="bitisTarihi" value="2026-09-02">
+        <input type="date" id="bitisTarihi">
       </div>
       <div>
         <label>Giriş Saati:</label>
@@ -1850,6 +1970,90 @@ function doPost(e) {
     });
   }
 
+  
+  // Yerel Tarih Yardımcısı (YYYY-MM-DD)
+  function getTodayDateString() {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  // --- BULUT VE CİHAZLAR ARASI CANLI SENKRONİZASYON ---
+  async function syncAllFromCloud(showToastMsg = false) {
+    const url = getWebhookUrl();
+    if (!url || !url.startsWith('http')) return;
+
+    try {
+      if (showToastMsg) showToast('⏳ Bulut veritabanı eşitleniyor...');
+      const resp = await fetch(url, { redirect: "follow" });
+      if (!resp.ok) return;
+
+      const data = await resp.json();
+      if (data.status === "SUCCESS") {
+        // 1. Kullanıcı şifrelerini güncelle
+        if (data.users) localStorage.setItem(USERS_KEY, JSON.stringify(data.users));
+
+        // 2. Taban Sayaç Numarasını Eşitle
+        if (data.lastRecordNo) {
+          const localLast = parseInt(localStorage.getItem(STORAGE_KEY_LAST_NO), 10) || 299;
+          if (data.lastRecordNo > localLast) {
+            localStorage.setItem(STORAGE_KEY_LAST_NO, data.lastRecordNo.toString());
+          }
+        }
+
+        // 3. Form Arşivini Birleştir (Telefon + Bilgisayar + Bulut E-Tablo)
+        if (data.forms && Array.isArray(data.forms)) {
+          const localForms = getArchiveRecords();
+          const mergedMap = new Map();
+          
+          localForms.forEach(f => {
+            const key = f.id || f.kayitNo;
+            if (key) mergedMap.set(key, f);
+          });
+          
+          data.forms.forEach(f => {
+            const key = f.id || f.kayitNo;
+            if (key) mergedMap.set(key, Object.assign({}, mergedMap.get(key) || {}, f));
+          });
+
+          const mergedArray = Array.from(mergedMap.values());
+          mergedArray.sort((a,b) => (b.kayitNo || '').localeCompare(a.kayitNo || ''));
+          localStorage.setItem(ARCHIVE_KEY, JSON.stringify(mergedArray));
+        }
+
+        // 4. Arayüz elemanlarını yenile
+        updateProjectDatalist();
+        updateArchiveBadge();
+        updateProjectRecordNumber();
+
+        // Arşiv penceresi açıksa listeyi tazele
+        const arcModal = document.getElementById('archiveModal');
+        if (arcModal && arcModal.style.display === 'flex') {
+          renderArchiveList();
+        }
+
+        if (showToastMsg) showToast('✓ Telefon ve Bilgisayar eşitlendi!');
+      }
+    } catch(e) {
+      console.log('Bulut eşitleme hatası:', e);
+    }
+  }
+
+  async function deleteRecordFromCloud(id, kayitNo) {
+    const url = getWebhookUrl();
+    if (!url || !url.startsWith('http')) return;
+    try {
+      await fetch(url, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: "delete_form", id: id, kayitNo: kayitNo })
+      });
+    } catch(e) {}
+  }
+
   async function uploadPDFToGoogleDrive(pdfBlob, fileName, metaData) {
     const webhookUrl = getWebhookUrl();
     if (!webhookUrl || !webhookUrl.startsWith('http')) return false;
@@ -1857,11 +2061,13 @@ function doPost(e) {
     try {
       const b64Pdf = await blobToBase64(pdfBlob);
       const payload = {
+        action: "save_form",
         pdfBase64: b64Pdf,
         fileName: fileName,
         formNo: metaData.formNo,
         kayitNo: metaData.kayitNo,
         tarih: metaData.tarih,
+        projeAdi: metaData.projeAdi,
         musteriAdi: metaData.musteriAdi,
         musteriEmail: metaData.musteriEmail,
         userEmail: metaData.musteriEmail,
@@ -1869,7 +2075,10 @@ function doPost(e) {
         servisSonDurum: metaData.servisSonDurum,
         islemler: metaData.islemler,
         teslimEden: metaData.teslimEden,
-        teslimAlan: metaData.teslimAlan
+        teslimAlan: metaData.teslimAlan,
+        teslimAlanGorev: metaData.teslimAlanGorev,
+        serviceTypes: metaData.serviceTypes,
+        form: metaData
       };
 
       await fetch(webhookUrl, {
@@ -2158,8 +2367,10 @@ function doPost(e) {
   window.deleteRecord = function(id) {
     if (!confirm('Bu servis kaydını arşivden silmek istediğinize emin misiniz?')) return;
     let recs = getArchiveRecords();
+    const targetRec = recs.find(r => r.id === id);
     recs = recs.filter(r => r.id !== id);
     saveArchiveRecords(recs);
+    if (targetRec) deleteRecordFromCloud(id, targetRec.kayitNo);
     renderArchiveList();
     showToast('Kayıt silindi.');
   };
@@ -2303,8 +2514,8 @@ function doPost(e) {
     document.getElementById('teslimAlan').value = '';
     document.getElementById('teslimAlanGorev').value = '';
 
-    // Tarihler
-    const today = new Date().toISOString().slice(0,10);
+    // Tarihler (Her zaman bugünün tarihi)
+    const today = getTodayDateString();
     document.getElementById('tarih').value = today;
     document.getElementById('baslangicTarihi').value = today;
     document.getElementById('bitisTarihi').value = today;
@@ -2353,10 +2564,14 @@ function doPost(e) {
     fetchUsersFromCloud();
     refreshSystemSelect();
     updateArchiveBadge();
-    const today = new Date().toISOString().slice(0,10);
-    if (!document.getElementById('tarih').value) document.getElementById('tarih').value = today;
-    if (!document.getElementById('baslangicTarihi').value) document.getElementById('baslangicTarihi').value = today;
-    if (!document.getElementById('bitisTarihi').value) document.getElementById('bitisTarihi').value = today;
+    const today = getTodayDateString();
+    document.getElementById('tarih').value = today;
+    document.getElementById('baslangicTarihi').value = today;
+    document.getElementById('bitisTarihi').value = today;
+
+    // Canlı Bulut Senkronizasyonu (Telefon + Bilgisayar)
+    syncAllFromCloud(false);
+    setInterval(() => syncAllFromCloud(false), 45000);
 
     // Oturum kontrolü
     if (sessionStorage.getItem('aydn_auth_logged_in') === 'true') {
